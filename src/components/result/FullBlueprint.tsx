@@ -37,7 +37,7 @@ export const FullBlueprint: React.FC<FullBlueprintProps> = ({ result, onRetake }
     const shareData = {
       title: 'My NEXTMOVE Business Blueprint',
       text: `My recommended business to test: ${primaryBlueprint.name} (Profile Fit: ${primaryBlueprint.fitScore}/100). Validating before quitting corporate life!`,
-      url: typeof window !== 'undefined' ? window.location.href : 'https://nextmove.co'
+      url: typeof window !== 'undefined' ? window.location.href : 'https://founderfit.store'
     };
 
     if (navigator.share) {

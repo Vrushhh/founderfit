@@ -56,9 +56,7 @@ function Landing() {
           <p className="mt-3 text-xl font-semibold text-muted-foreground sm:text-2xl">
             Confused about what to do next?
           </p>
-          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-            You know you want something of your own. You just don't know what business actually fits you.
-          </p>
+
           <div className="mt-6">
             <CTA />
             <p className="mt-3 text-center text-sm text-muted-foreground">

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 
 export function Section({
@@ -87,18 +88,18 @@ export function GhostButton({
 export function Wordmark({ className, iconOnly = false }: { className?: string; iconOnly?: boolean }) {
   if (iconOnly) {
     return (
-      <span className={cn("inline-flex items-center", className)}>
+      <Link to="/" className={cn("inline-flex items-center", className)}>
         <img
           src="/icon.png"
           alt="FounderFit"
           className="h-7 w-auto dark:invert"
           style={{ mixBlendMode: "multiply" }}
         />
-      </span>
+      </Link>
     );
   }
   return (
-    <span className={cn("inline-flex items-center gap-2", className)}>
+    <Link to="/" className={cn("inline-flex items-center gap-2", className)}>
       <img
         src="/icon.png"
         alt="FounderFit icon"
@@ -106,7 +107,7 @@ export function Wordmark({ className, iconOnly = false }: { className?: string; 
         style={{ mixBlendMode: "multiply" }}
       />
       <span className="text-sm font-extrabold tracking-[0.12em] text-foreground">FOUNDERFIT</span>
-    </span>
+    </Link>
   );
 }
 

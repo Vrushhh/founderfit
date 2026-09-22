@@ -27,7 +27,22 @@ declare global {
 export const analytics = {
   track(event: FounderFitEvent, props: Props = {}) {
     if (typeof window === "undefined") return;
-    if (metaPixelId && window.fbq) window.fbq("trackCustom", event, props);
+
+    if (window.fbq) {
+      window.fbq("trackCustom", event, props);
+
+      // Standard Meta Pixel conversion events for ad campaign optimization
+      if (event === "landing_view") {
+        window.fbq("track", "PageView");
+      } else if (event === "result_viewed") {
+        window.fbq("track", "ViewContent", { content_name: "FounderFit Blueprint" });
+      } else if (event === "payment_started") {
+        window.fbq("track", "InitiateCheckout", { value: 299, currency: "INR" });
+      } else if (event === "payment_completed") {
+        window.fbq("track", "Purchase", { value: 299, currency: "INR" });
+      }
+    }
+
     if (gaId && window.gtag) window.gtag("event", event, props);
     if (import.meta.env.DEV) console.debug("[nextmove:event]", event, props);
   },

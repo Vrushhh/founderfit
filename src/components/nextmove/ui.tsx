@@ -89,22 +89,21 @@ export function Wordmark({ className, iconOnly = false }: { className?: string; 
     return (
       <span className={cn("inline-flex items-center", className)}>
         <img
-          src="/icon.svg"
+          src="/icon.png"
           alt="FounderFit"
           className="h-7 w-auto"
-          style={{ filter: "var(--logo-filter, none)" }}
         />
       </span>
     );
   }
   return (
-    <span className={cn("inline-flex items-center", className)}>
+    <span className={cn("inline-flex items-center gap-2", className)}>
       <img
-        src="/logo.svg"
-        alt="FOUNDERFIT"
+        src="/icon.png"
+        alt="FounderFit icon"
         className="h-7 w-auto"
-        style={{ filter: "var(--logo-filter, none)" }}
       />
+      <span className="text-sm font-extrabold tracking-[0.12em] text-foreground">FOUNDERFIT</span>
     </span>
   );
 }

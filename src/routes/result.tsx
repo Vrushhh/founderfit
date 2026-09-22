@@ -164,48 +164,17 @@ function ResultPage() {
           </div>
         </div>
 
-        {/* WHY IT FITS */}
-        <div className="mt-8">
-          <Eyebrow>Why this fits you</Eyebrow>
-          <div className="space-y-2.5">
-            {bp.reasons.map((r) => (
-              <Card key={r} className="text-sm leading-relaxed">
-                {r}
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* SIGNALS */}
-        <div className="mt-8">
-          <Eyebrow>Your business profile signals</Eyebrow>
-          <Card>
-            <div className="space-y-3">
-              {signalIds.map((s) => (
-                <div key={s}>
-                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-                    <span className="truncate text-sm font-medium">{signalLabels[s]}</span>
-                    <span className="shrink-0 text-xs font-bold text-muted-foreground">{bp.signals[s]}</span>
-                  </div>
-                  <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                    <div className="h-full rounded-full bg-accent" style={{ width: `${bp.signals[s]}%` }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-            <p className="mt-4 text-xs text-muted-foreground">
-              These are directional signals from your answers, not a psychological assessment.
-            </p>
-          </Card>
-        </div>
-
         {/* LOCKED / UNLOCKED */}
         {!paid ? (
           <div className="mt-8">
             <div className="relative overflow-hidden rounded-2xl border border-border">
               <div className="pointer-events-none select-none blur-[5px]" aria-hidden>
                 <Card className="rounded-none border-0">
-                  <p className="font-bold">Your business model</p>
+                  <p className="font-bold">Why this fits you</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{bp.reasons[0]}</p>
+                  <p className="mt-4 font-bold">Your business profile signals</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Capital, time, skills, and risk appetite breakdown.</p>
+                  <p className="mt-4 font-bold">Your business model</p>
                   <p className="mt-1 text-sm text-muted-foreground">{b.model.slice(0, 220)}…</p>
                   <p className="mt-4 font-bold">Your first offer</p>
                   <p className="mt-1 text-sm text-muted-foreground">{b.firstOffer}</p>
@@ -258,6 +227,39 @@ function ResultPage() {
           </div>
         ) : (
           <div className="mt-8 space-y-8">
+            <div>
+              <Eyebrow>Why this fits you</Eyebrow>
+              <div className="space-y-2.5">
+                {bp.reasons.map((r) => (
+                  <Card key={r} className="text-sm leading-relaxed">
+                    {r}
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <Eyebrow>Your business profile signals</Eyebrow>
+              <Card>
+                <div className="space-y-3">
+                  {signalIds.map((s) => (
+                    <div key={s}>
+                      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+                        <span className="truncate text-sm font-medium">{signalLabels[s]}</span>
+                        <span className="shrink-0 text-xs font-bold text-muted-foreground">{bp.signals[s]}</span>
+                      </div>
+                      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                        <div className="h-full rounded-full bg-accent" style={{ width: `${bp.signals[s]}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-4 text-xs text-muted-foreground">
+                  These are directional signals from your answers, not a psychological assessment.
+                </p>
+              </Card>
+            </div>
+
             <Block title="Your business model">
               <p className="text-sm leading-relaxed">{b.model}</p>
             </Block>

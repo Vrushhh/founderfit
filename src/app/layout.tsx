@@ -20,11 +20,11 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "NEXTMOVE — Find the Business You Should Test Next",
+  title: "FOUNDERFIT — Find the Business You Should Test Next",
   description:
     "A personalized Business Blueprint for Indian corporate professionals looking for a validated way out of desk jobs. 10 questions. ₹299.",
   keywords: [
-    "NextMove",
+    "FounderFit",
     "business blueprint",
     "Indian corporate employees",
     "side business",
@@ -35,16 +35,16 @@ export const metadata: Metadata = {
     "career change"
   ],
   openGraph: {
-    title: "NEXTMOVE — Find the Business You Should Test Next",
+    title: "FOUNDERFIT — Find the Business You Should Test Next",
     description:
       "Having difficult days at your desk job? Find the business model that fits your skills, experience, and risk appetite. 10 questions • ₹299.",
     type: "website",
     locale: "en_IN",
-    siteName: "NEXTMOVE"
+    siteName: "FOUNDERFIT"
   },
   twitter: {
     card: "summary_large_image",
-    title: "NEXTMOVE — Find the Business You Should Test Next",
+    title: "FOUNDERFIT — Find the Business You Should Test Next",
     description:
       "Don't quit your job blindly. Find the business model worth testing on the side."
   }

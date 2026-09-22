@@ -10,7 +10,7 @@ export const Footer: React.FC = () => {
           <div className="flex h-5 w-5 items-center justify-center rounded bg-emerald-500 font-bold text-black text-[10px]">
             NM
           </div>
-          <span className="font-bold tracking-tight text-white text-sm">NEXTMOVE</span>
+          <span className="font-bold tracking-tight text-white text-sm">FOUNDERFIT</span>
         </div>
 
         <p className="text-[#9BA1AD] max-w-md mx-auto leading-relaxed">
@@ -18,9 +18,9 @@ export const Footer: React.FC = () => {
         </p>
 
         <div className="pt-2 border-t border-[#252932]/40 text-[11px] space-y-1">
-          <p>© {new Date().getFullYear()} NEXTMOVE. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} FOUNDERFIT. All rights reserved.</p>
           <p className="text-[#656C7A]">
-            Directional guidance only. NEXTMOVE does not guarantee business profits or advise reckless resignation without validation.
+            Directional guidance only. FOUNDERFIT does not guarantee business profits or advise reckless resignation without validation.
           </p>
         </div>
       </div>

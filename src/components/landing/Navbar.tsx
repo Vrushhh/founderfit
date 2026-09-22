@@ -15,7 +15,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartAssessment }) => {
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500 font-bold text-black text-sm tracking-tighter">
             NM
           </div>
-          <span className="font-bold tracking-tight text-white text-base">NEXTMOVE</span>
+          <span className="font-bold tracking-tight text-white text-base">FOUNDERFIT</span>
           <span className="hidden sm:inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400 border border-emerald-500/20">
             For Indian Corporate Employees
           </span>

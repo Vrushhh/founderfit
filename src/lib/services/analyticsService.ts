@@ -28,7 +28,7 @@ class AnalyticsService {
 
     // Log cleanly to console in dev mode
     if (process.env.NODE_ENV !== 'production') {
-      console.log(`[NextMove Analytics] 📊 ${event}`, properties || {});
+      console.log(`[FounderFit Analytics] 📊 ${event}`, properties || {});
     }
 
     if (typeof window === 'undefined') return;
@@ -58,7 +58,7 @@ class AnalyticsService {
       const w = window as any;
       if (w.gtag) {
         w.gtag('event', event, {
-          event_category: 'NextMove Assessment',
+          event_category: 'FounderFit Assessment',
           event_label: properties?.label || event,
           ...properties
         });

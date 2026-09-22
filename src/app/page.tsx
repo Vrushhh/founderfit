@@ -27,7 +27,7 @@ import { TestPersona } from '@/lib/data/testPersonas';
 
 type AppView = 'landing' | 'assessment' | 'analyzing' | 'preview' | 'full';
 
-export default function NextMoveApp() {
+export default function FounderFitApp() {
   const [currentView, setCurrentView] = useState<AppView>('landing');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<AssessmentAnswers>({});

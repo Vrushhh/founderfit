@@ -64,7 +64,7 @@ export const ProblemSection: React.FC = () => {
             The Solution
           </p>
           <p className="text-sm sm:text-base font-bold text-white">
-            NEXTMOVE connects the dots.
+            FOUNDERFIT connects the dots.
           </p>
           <p className="text-xs text-[#9BA1AD] mt-1 max-w-sm mx-auto">
             We match your specific skills, capital constraints, available hours, and risk tolerance to the single business model worth testing first.

@@ -63,7 +63,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             NM
           </div>
           <div>
-            <h3 className="text-base font-bold text-white leading-none">NEXTMOVE Checkout</h3>
+            <h3 className="text-base font-bold text-white leading-none">FOUNDERFIT Checkout</h3>
             <span className="text-[11px] text-[#9BA1AD]">Encrypted 256-Bit Payment</span>
           </div>
         </div>

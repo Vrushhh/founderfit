@@ -35,7 +35,7 @@ export const WhoItIsFor: React.FC = () => {
             Target Audience
           </span>
           <h2 className="text-xl sm:text-2xl font-bold text-white mt-1">
-            Who NEXTMOVE Is Built For
+            Who FOUNDERFIT Is Built For
           </h2>
           <p className="text-xs sm:text-sm text-[#9BA1AD] mt-1">
             If you nod along to these statements, this blueprint is built for you.

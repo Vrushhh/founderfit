@@ -15,7 +15,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onStartAssessment }) => {
 
       <div className="relative mx-auto max-w-xl text-center">
         <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-3">
-          Your next move shouldn’t be a guess.
+          Your FounderFit shouldn’t be a guess.
         </h2>
         <p className="text-sm sm:text-base text-[#9BA1AD] leading-relaxed mb-6 max-w-md mx-auto">
           Validate before you quit. Spend 3 minutes and ₹299 to get an objective business blueprint tailored to your skills and budget.

@@ -16,7 +16,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onStartAssessment }) => 
             Simple 3-Step Process
           </span>
           <h2 className="text-xl sm:text-2xl font-bold text-white mt-1">
-            How NEXTMOVE Works
+            How FOUNDERFIT Works
           </h2>
           <p className="text-xs sm:text-sm text-[#9BA1AD] mt-1">
             No endless quizzes. No generic motivational fluff.

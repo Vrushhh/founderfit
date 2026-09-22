@@ -35,7 +35,7 @@ export const FullBlueprint: React.FC<FullBlueprintProps> = ({ result, onRetake }
     analyticsService.track('share_clicked', { business: primaryBlueprint.name });
 
     const shareData = {
-      title: 'My NEXTMOVE Business Blueprint',
+      title: 'My FOUNDERFIT Business Blueprint',
       text: `My recommended business to test: ${primaryBlueprint.name} (Profile Fit: ${primaryBlueprint.fitScore}/100). Validating before quitting corporate life!`,
       url: typeof window !== 'undefined' ? window.location.href : 'https://founderfit.store'
     };
@@ -125,7 +125,7 @@ export const FullBlueprint: React.FC<FullBlueprintProps> = ({ result, onRetake }
             <div className="h-6 w-6 rounded bg-emerald-500 font-bold text-black text-xs flex items-center justify-center">
               NM
             </div>
-            <span className="font-extrabold tracking-tight text-white text-sm">NEXTMOVE</span>
+            <span className="font-extrabold tracking-tight text-white text-sm">FOUNDERFIT</span>
           </div>
           <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">
             Verified Blueprint
@@ -165,7 +165,7 @@ export const FullBlueprint: React.FC<FullBlueprintProps> = ({ result, onRetake }
 
         <div className="pt-3 border-t border-[#252932] flex items-center justify-between">
           <span className="text-[11px] font-semibold text-emerald-400">
-            “Your next move: validate it before you quit.”
+            “Your FounderFit: validate it before you quit.”
           </span>
         </div>
 

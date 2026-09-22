@@ -88,7 +88,7 @@ class PaymentService {
   public async getPaymentStatus(orderId: string): Promise<'created' | 'paid' | 'failed'> {
     // Check localStorage in client or API
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(`nextmove_paid_${orderId}`);
+      const stored = localStorage.getItem(`founderfit_paid_${orderId}`);
       if (stored) return 'paid';
     }
     return 'created';

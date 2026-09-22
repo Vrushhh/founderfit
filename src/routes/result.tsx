@@ -73,13 +73,20 @@ function ResultPage() {
 
   async function unlock() {
     setPaying(true);
-    analytics.track("payment_started", { amount: PRICE_INR, mode: paymentService.mode });
-    const intent = await paymentService.createPayment();
-    const verified = await paymentService.verifyPayment(intent.id);
-    setPaying(false);
-    if (verified.status === "paid") {
-      setPaid(true);
-      analytics.track("payment_completed", { amount: PRICE_INR });
+    analytics.track("payment_started", { amount: PRICE_INR });
+    try {
+      const intent = await paymentService.checkout();
+      if (intent.status === "paid") {
+        setPaid(true);
+        analytics.track("payment_completed", { amount: PRICE_INR });
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Payment failed";
+      if (msg !== "Payment cancelled by user") {
+        alert(`Payment error: ${msg}`);
+      }
+    } finally {
+      setPaying(false);
     }
   }
 

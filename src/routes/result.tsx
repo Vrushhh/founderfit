@@ -48,6 +48,13 @@ function ResultPage() {
   const [paying, setPaying] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Direct QR Payment Modal state
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [qrData, setQrData] = useState<{ qr_id: string; image_url: string; amount: number } | null>(null);
+  const [qrLoading, setQrLoading] = useState(false);
+  const [qrPaid, setQrPaid] = useState(false);
+  const [verifyingManual, setVerifyingManual] = useState(false);
+
   useEffect(() => {
     const a = session.load();
     setAnswers(a);
@@ -64,6 +71,29 @@ function ResultPage() {
     return () => clearTimeout(t);
   }, [navigate]);
 
+  // Polling for QR payment completion
+  useEffect(() => {
+    if (!qrModalOpen || !qrData?.qr_id || qrPaid) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await paymentService.checkQrStatus(qrData.qr_id);
+        if (res.paid) {
+          setQrPaid(true);
+          setPaid(true);
+          analytics.track("payment_completed", { amount: PRICE_INR });
+          setTimeout(() => {
+            setQrModalOpen(false);
+          }, 1500);
+        }
+      } catch {
+        // silent retry on transient poll error
+      }
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [qrModalOpen, qrData?.qr_id, qrPaid]);
+
   const bp: Blueprint | null = useMemo(
     () => (Object.keys(answers).length >= totalQuestions ? generateBlueprint(answers) : null),
     [answers],
@@ -72,12 +102,49 @@ function ResultPage() {
   if (phase !== "ready" || !bp) return <Analysing />;
 
   async function unlock() {
-    setPaying(true);
+    setQrModalOpen(true);
+    setQrLoading(true);
+    setQrPaid(false);
     analytics.track("payment_started", { amount: PRICE_INR });
+    try {
+      const data = await paymentService.generateQrCode();
+      setQrData(data);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to load payment QR";
+      alert(`Payment error: ${msg}`);
+      setQrModalOpen(false);
+    } finally {
+      setQrLoading(false);
+    }
+  }
+
+  async function checkManual() {
+    if (!qrData?.qr_id) return;
+    setVerifyingManual(true);
+    try {
+      const res = await paymentService.checkQrStatus(qrData.qr_id);
+      if (res.paid) {
+        setQrPaid(true);
+        setPaid(true);
+        analytics.track("payment_completed", { amount: PRICE_INR });
+        setTimeout(() => setQrModalOpen(false), 1200);
+      } else {
+        alert("Payment not detected yet. If you just sent it, please wait 5-10 seconds and click again!");
+      }
+    } catch {
+      alert("Could not verify status. Please check your connection.");
+    } finally {
+      setVerifyingManual(false);
+    }
+  }
+
+  async function unlockWithRazorpayStandard() {
+    setPaying(true);
     try {
       const intent = await paymentService.checkout();
       if (intent.status === "paid") {
         setPaid(true);
+        setQrModalOpen(false);
         analytics.track("payment_completed", { amount: PRICE_INR });
       }
     } catch (err: unknown) {
@@ -413,6 +480,95 @@ function ResultPage() {
 
         <p className="mt-8 text-xs leading-relaxed text-muted-foreground">{disclaimer}</p>
       </div>
+
+      {/* ── Direct UPI QR Payment Modal ── */}
+      {qrModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="relative w-full max-w-sm overflow-hidden rounded-3xl border border-white/10 bg-[#0f1712] p-6 shadow-2xl text-white text-center">
+            {/* Close button */}
+            <button
+              onClick={() => setQrModalOpen(false)}
+              className="absolute right-4 top-4 rounded-full p-2 text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+              aria-label="Close"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {qrLoading ? (
+              <div className="py-14 space-y-4">
+                <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto" />
+                <p className="text-sm font-medium text-white/80">Generating secure UPI QR code…</p>
+                <p className="text-xs text-white/40">No contact details or mobile number required</p>
+              </div>
+            ) : qrPaid ? (
+              <div className="py-12 space-y-4 animate-in zoom-in-95 duration-300">
+                <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto ring-8 ring-emerald-500/10">
+                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-extrabold text-white">Payment Confirmed!</h3>
+                <p className="text-sm text-emerald-400 font-medium">Unlocking your complete blueprint now…</p>
+              </div>
+            ) : qrData ? (
+              <div className="space-y-4">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    Scan &amp; Pay ₹{qrData.amount}
+                  </div>
+                  <h3 className="text-lg font-bold text-white">Scan with any UPI App</h3>
+                  <p className="text-xs text-white/60 mt-0.5">
+                    Google Pay • PhonePe • Paytm • BHIM • Cred
+                  </p>
+                </div>
+
+                {/* QR Code card */}
+                <div className="relative mx-auto rounded-2xl overflow-hidden border border-white/10 bg-white p-2 shadow-2xl max-w-[240px]">
+                  <img
+                    src={qrData.image_url}
+                    alt="Scan UPI QR Code"
+                    className="w-full h-auto object-contain rounded-xl"
+                  />
+                </div>
+
+                {/* Polling indicator */}
+                <div className="flex items-center justify-center gap-2 py-1.5 text-xs text-emerald-400 font-medium bg-emerald-950/40 border border-emerald-500/20 rounded-xl px-3">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  Waiting for payment… Unlocks automatically
+                </div>
+
+                <div className="pt-1 flex flex-col gap-2">
+                  <button
+                    onClick={checkManual}
+                    disabled={verifyingManual}
+                    className="w-full py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold text-white transition-all disabled:opacity-50"
+                  >
+                    {verifyingManual ? "Checking status…" : "I've completed payment"}
+                  </button>
+
+                  <button
+                    onClick={unlockWithRazorpayStandard}
+                    disabled={paying}
+                    className="text-[11px] text-white/40 hover:text-white/70 transition-colors underline"
+                  >
+                    Prefer Card or Netbanking?
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      )}
 
       <Footer />
     </main>

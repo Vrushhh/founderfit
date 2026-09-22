@@ -517,51 +517,39 @@ function ResultPage() {
                 <p className="text-sm text-emerald-400 font-medium">Unlocking your complete blueprint now…</p>
               </div>
             ) : qrData ? (
-              <div className="space-y-4">
+              <div className="space-y-3.5">
                 <div>
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    Scan &amp; Pay ₹{qrData.amount}
-                  </div>
-                  <h3 className="text-lg font-bold text-white">Scan with any UPI App</h3>
-                  <p className="text-xs text-white/60 mt-0.5">
-                    Google Pay • PhonePe • Paytm • BHIM • Cred
+                  <h3 className="text-base font-bold text-white">Scan &amp; Pay ₹{qrData.amount}</h3>
+                  <p className="text-[11px] text-white/50 mt-0.5">
+                    Any UPI App (GPay, PhonePe, Paytm, BHIM)
                   </p>
                 </div>
 
-                {/* QR Code card */}
-                <div className="relative mx-auto rounded-2xl overflow-hidden border border-white/10 bg-white p-2 shadow-2xl max-w-[240px]">
+                {/* Pure QR Code Square — only the QR, no standee or banners */}
+                <div className="relative mx-auto w-[220px] h-[220px] rounded-2xl overflow-hidden bg-white shadow-2xl border border-white/20">
                   <img
                     src={qrData.image_url}
-                    alt="Scan UPI QR Code"
-                    className="w-full h-auto object-contain rounded-xl"
+                    alt="UPI QR Code"
+                    className="absolute max-w-none w-[350px] h-auto left-1/2 top-1/2 -translate-x-1/2 -translate-y-[51.2%]"
                   />
                 </div>
 
                 {/* Polling indicator */}
-                <div className="flex items-center justify-center gap-2 py-1.5 text-xs text-emerald-400 font-medium bg-emerald-950/40 border border-emerald-500/20 rounded-xl px-3">
+                <div className="flex items-center justify-center gap-2 py-1 text-xs text-emerald-400 font-medium bg-emerald-950/50 border border-emerald-500/20 rounded-xl px-3">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
-                  Waiting for payment… Unlocks automatically
+                  Waiting for payment…
                 </div>
 
-                <div className="pt-1 flex flex-col gap-2">
+                <div className="pt-0.5 flex flex-col gap-1.5">
                   <button
                     onClick={checkManual}
                     disabled={verifyingManual}
                     className="w-full py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold text-white transition-all disabled:opacity-50"
                   >
                     {verifyingManual ? "Checking status…" : "I've completed payment"}
-                  </button>
-
-                  <button
-                    onClick={unlockWithRazorpayStandard}
-                    disabled={paying}
-                    className="text-[11px] text-white/40 hover:text-white/70 transition-colors underline"
-                  >
-                    Prefer Card or Netbanking?
                   </button>
                 </div>
               </div>

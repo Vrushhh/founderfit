@@ -91,7 +91,8 @@ export function Wordmark({ className, iconOnly = false }: { className?: string; 
         <img
           src="/icon.png"
           alt="FounderFit"
-          className="h-7 w-auto"
+          className="h-7 w-auto dark:invert"
+          style={{ mixBlendMode: "multiply" }}
         />
       </span>
     );
@@ -101,7 +102,8 @@ export function Wordmark({ className, iconOnly = false }: { className?: string; 
       <img
         src="/icon.png"
         alt="FounderFit icon"
-        className="h-7 w-auto"
+        className="h-7 w-auto dark:invert"
+        style={{ mixBlendMode: "multiply" }}
       />
       <span className="text-sm font-extrabold tracking-[0.12em] text-foreground">FOUNDERFIT</span>
     </span>

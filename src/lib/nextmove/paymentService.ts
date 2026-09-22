@@ -1,9 +1,4 @@
-import {
-  createRazorpayOrder,
-  verifyRazorpayPayment,
-  createRazorpayQr,
-  checkRazorpayQrStatus,
-} from "./razorpayServer";
+import { createRazorpayOrder, verifyRazorpayPayment } from "./razorpayServer";
 
 export type PaymentStatus = "unpaid" | "pending" | "paid" | "failed";
 
@@ -78,25 +73,6 @@ function openRazorpayCheckout(params: {
       description: params.description ?? "Business Blueprint — ₹299",
       order_id: params.orderId,
       theme: { color: "#10b981" },
-      config: {
-        display: {
-          blocks: {
-            upi_block: {
-              name: "Pay via UPI / QR",
-              instruments: [
-                {
-                  method: "upi",
-                  flows: ["qr", "intent"],
-                },
-              ],
-            },
-          },
-          sequence: ["block.upi_block"],
-          preferences: {
-            show_default_blocks: false,
-          },
-        },
-      },
       handler: (response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => {
         resolve(response);
       },
@@ -151,32 +127,6 @@ export const paymentService = {
     };
     writeIntent(intent);
     return intent;
-  },
-
-  /**
-   * Generates a direct dynamic UPI QR Code without requiring customer phone/email details.
-   */
-  async generateQrCode(): Promise<{ qr_id: string; image_url: string; amount: number }> {
-    const res = await createRazorpayQr({ data: { amount: PRICE_PAISE } });
-    return res;
-  },
-
-  /**
-   * Checks if the dynamic UPI QR Code has been paid.
-   */
-  async checkQrStatus(qrId: string): Promise<{ paid: boolean; payment_id?: string | null }> {
-    const res = await checkRazorpayQrStatus({ data: { qr_id: qrId } });
-    if (res.paid && res.payment_id) {
-      const intent: PaymentIntent = {
-        id: res.payment_id,
-        amount: PRICE_INR,
-        currency: "INR",
-        status: "paid",
-      };
-      writeIntent(intent);
-      return { paid: true, payment_id: res.payment_id };
-    }
-    return { paid: false };
   },
 
   reset() {

@@ -73,6 +73,25 @@ function openRazorpayCheckout(params: {
       description: params.description ?? "Business Blueprint — ₹299",
       order_id: params.orderId,
       theme: { color: "#10b981" },
+      config: {
+        display: {
+          blocks: {
+            upi_block: {
+              name: "Pay via UPI / QR",
+              instruments: [
+                {
+                  method: "upi",
+                  flows: ["qr", "intent"],
+                },
+              ],
+            },
+          },
+          sequence: ["block.upi_block"],
+          preferences: {
+            show_default_blocks: false,
+          },
+        },
+      },
       handler: (response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => {
         resolve(response);
       },

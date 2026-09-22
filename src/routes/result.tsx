@@ -166,36 +166,94 @@ function ResultPage() {
 
         {/* LOCKED / UNLOCKED */}
         {!paid ? (
-          <div className="mt-8">
-            <div className="relative overflow-hidden rounded-2xl border border-border">
-              <div className="pointer-events-none select-none blur-[5px]" aria-hidden>
-                <Card className="rounded-none border-0">
-                  <p className="font-bold">Why this fits you</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{bp.reasons[0]}</p>
-                  <p className="mt-4 font-bold">Your business profile signals</p>
-                  <p className="mt-1 text-sm text-muted-foreground">Capital, time, skills, and risk appetite breakdown.</p>
-                  <p className="mt-4 font-bold">Your business model</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{b.model.slice(0, 220)}…</p>
-                  <p className="mt-4 font-bold">Your first offer</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{b.firstOffer}</p>
-                  <p className="mt-4 font-bold">First 7 days</p>
-                  <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
-                    {b.sevenDays.slice(0, 4).map((d) => (
-                      <li key={d}>{d}</li>
-                    ))}
-                  </ul>
-                </Card>
+          <div className="mt-8 space-y-6">
+
+            {/* SECTION: Why this fits you — heading visible, content blurred */}
+            <div>
+              <Eyebrow>Why this fits you</Eyebrow>
+              <div className="pointer-events-none select-none blur-sm" aria-hidden>
+                <div className="space-y-2.5">
+                  {bp.reasons.slice(0, 2).map((r) => (
+                    <Card key={r} className="text-sm leading-relaxed">{r}</Card>
+                  ))}
+                </div>
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/30" />
             </div>
 
-            <Card className="mt-[-28px] relative">
+            {/* SECTION: Signals — heading visible, bars blurred */}
+            <div>
+              <Eyebrow>Your business profile signals</Eyebrow>
+              <div className="pointer-events-none select-none blur-sm" aria-hidden>
+                <Card>
+                  <div className="space-y-3">
+                    {signalIds.slice(0, 3).map((s) => (
+                      <div key={s}>
+                        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+                          <span className="truncate text-sm font-medium">{signalLabels[s]}</span>
+                          <span className="shrink-0 text-xs font-bold text-muted-foreground">{bp.signals[s]}</span>
+                        </div>
+                        <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                          <div className="h-full rounded-full bg-accent" style={{ width: `${bp.signals[s]}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </div>
+            </div>
+
+            {/* SECTION: Business model — heading visible, text blurred */}
+            <div>
+              <Eyebrow>Your business model</Eyebrow>
+              <div className="pointer-events-none select-none blur-sm" aria-hidden>
+                <Card>
+                  <p className="text-sm leading-relaxed">{b.model.slice(0, 180)}…</p>
+                </Card>
+              </div>
+            </div>
+
+            {/* SECTION: 7-day plan — heading visible, steps blurred */}
+            <div>
+              <Eyebrow>First 7 days</Eyebrow>
+              <div className="pointer-events-none select-none blur-sm" aria-hidden>
+                <Card>
+                  <ol className="space-y-2 text-sm">
+                    {b.sevenDays.slice(0, 3).map((d, i) => (
+                      <li key={d} className="flex gap-3">
+                        <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-muted text-xs font-bold">{i + 1}</span>
+                        <span className="min-w-0 leading-relaxed">{d}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </Card>
+              </div>
+            </div>
+
+            {/* SECTION: 30-day plan teaser */}
+            <div>
+              <Eyebrow>First 30 days</Eyebrow>
+              <div className="pointer-events-none select-none blur-sm" aria-hidden>
+                <Card>
+                  <div className="space-y-2 text-sm">
+                    {b.thirtyDays.slice(0, 2).map((w) => (
+                      <div key={w.week} className="flex gap-3">
+                        <span className="w-16 shrink-0 font-bold">{w.week}</span>
+                        <span className="min-w-0 text-muted-foreground">{w.task}</span>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </div>
+            </div>
+
+            {/* UNLOCK CTA */}
+            <Card className="border-accent/30 bg-accent/5">
               <p className="text-lg font-extrabold">Unlock your complete blueprint.</p>
               <p className="mt-1 text-2xl font-black">₹{PRICE_INR}</p>
               <ul className="mt-4 space-y-2 text-sm">
                 {[
-                  "Personalised business recommendation",
                   "Why it fits you",
+                  "Business profile signals",
                   "Business model",
                   "Starting capital",
                   "First customer strategy",

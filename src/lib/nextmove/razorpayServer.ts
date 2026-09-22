@@ -3,10 +3,14 @@ import Razorpay from "razorpay";
 import crypto from "crypto";
 import { z } from "zod";
 
-const rzp = new Razorpay({
-  key_id: process.env["RAZORPAY_KEY_ID"]!,
-  key_secret: process.env["RAZORPAY_KEY_SECRET"]!,
-});
+function getRazorpay(): Razorpay {
+  const key_id = process.env["RAZORPAY_KEY_ID"];
+  const key_secret = process.env["RAZORPAY_KEY_SECRET"];
+  if (!key_id || !key_secret) {
+    throw new Error("Razorpay credentials are not configured on the server.");
+  }
+  return new Razorpay({ key_id, key_secret });
+}
 
 // ── Create Order ─────────────────────────────────────────────────────────────
 
@@ -19,6 +23,7 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
   .validator(CreateOrderInput)
   .handler(async ({ data }) => {
     try {
+      const rzp = getRazorpay();
       const order = await rzp.orders.create({
         amount: data.amount,
         currency: "INR",
@@ -28,9 +33,19 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
         order_id: order.id,
         amount: order.amount as number,
         currency: order.currency,
+        key_id: process.env["RAZORPAY_KEY_ID"] || "",
       };
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Razorpay order creation failed";
+      console.error("Razorpay order creation error:", err);
+      const rzpErr = err as {
+        description?: string;
+        message?: string;
+        error?: { description?: string; code?: string };
+      };
+      const msg =
+        rzpErr?.error?.description ||
+        rzpErr?.description ||
+        (err instanceof Error ? err.message : "Razorpay order creation failed");
       throw new Error(msg);
     }
   });

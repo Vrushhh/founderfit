@@ -51,6 +51,7 @@ function writeIntent(intent: PaymentIntent) {
 function openRazorpayCheckout(params: {
   orderId: string;
   amount: number;
+  keyId?: string;
   name?: string;
   description?: string;
 }): Promise<{ razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }> {
@@ -59,8 +60,13 @@ function openRazorpayCheckout(params: {
     const Razorpay = (window as any).Razorpay;
     if (!Razorpay) return reject(new Error("Razorpay not loaded"));
 
+    const key = params.keyId || KEY_ID;
+    if (!key) {
+      return reject(new Error("Razorpay key ID is missing."));
+    }
+
     const options = {
-      key: KEY_ID,
+      key,
       amount: params.amount,
       currency: "INR",
       name: params.name ?? "FounderFit",
@@ -106,6 +112,7 @@ export const paymentService = {
     const response = await openRazorpayCheckout({
       orderId: order.order_id,
       amount: order.amount,
+      keyId: order.key_id,
     });
 
     // Step 3 — Verify signature server-side

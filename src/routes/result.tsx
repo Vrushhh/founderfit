@@ -517,20 +517,26 @@ function ResultPage() {
                 <p className="text-sm text-emerald-400 font-medium">Unlocking your complete blueprint now…</p>
               </div>
             ) : qrData ? (
-              <div className="space-y-3.5">
+              <div className="space-y-3">
                 <div>
                   <h3 className="text-base font-bold text-white">Scan &amp; Pay ₹{qrData.amount}</h3>
                   <p className="text-[11px] text-white/50 mt-0.5">
-                    Any UPI App (GPay, PhonePe, Paytm, BHIM)
+                    Any UPI App (GPay, PhonePe, Paytm)
                   </p>
                 </div>
 
                 {/* Pure QR Code Square — only the QR, no standee or banners */}
-                <div className="relative mx-auto w-[220px] h-[220px] rounded-2xl overflow-hidden bg-white shadow-2xl border border-white/20">
+                <div className="relative mx-auto w-[200px] h-[200px] rounded-2xl overflow-hidden bg-white shadow-2xl border border-white/20">
                   <img
                     src={qrData.image_url}
                     alt="UPI QR Code"
-                    className="absolute max-w-none w-[350px] h-auto left-1/2 top-1/2 -translate-x-1/2 -translate-y-[51.2%]"
+                    className="absolute max-w-none pointer-events-none select-none"
+                    style={{
+                      width: "320px",
+                      left: "50%",
+                      top: "50%",
+                      transform: "translate(-50%, -51.55%)",
+                    }}
                   />
                 </div>
 
@@ -543,11 +549,11 @@ function ResultPage() {
                   Waiting for payment…
                 </div>
 
-                <div className="pt-0.5 flex flex-col gap-1.5">
+                <div className="pt-0.5">
                   <button
                     onClick={checkManual}
                     disabled={verifyingManual}
-                    className="w-full py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold text-white transition-all disabled:opacity-50"
+                    className="w-full py-2 px-4 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold text-white transition-all disabled:opacity-50"
                   >
                     {verifyingManual ? "Checking status…" : "I've completed payment"}
                   </button>

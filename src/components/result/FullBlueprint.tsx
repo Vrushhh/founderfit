@@ -123,7 +123,7 @@ export const FullBlueprint: React.FC<FullBlueprintProps> = ({ result, onRetake }
         <div className="flex items-center justify-between border-b border-[#252932] pb-3 mb-4">
           <div className="flex items-center gap-2">
             <div className="h-6 w-6 rounded bg-emerald-500 font-bold text-black text-xs flex items-center justify-center">
-              NM
+              FF
             </div>
             <span className="font-extrabold tracking-tight text-white text-sm">FOUNDERFIT</span>
           </div>

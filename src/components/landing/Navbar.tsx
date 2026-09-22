@@ -13,7 +13,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartAssessment }) => {
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500 font-bold text-black text-sm tracking-tighter">
-            NM
+            FF
           </div>
           <span className="font-bold tracking-tight text-white text-base">FOUNDERFIT</span>
           <span className="hidden sm:inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400 border border-emerald-500/20">

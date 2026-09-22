@@ -60,7 +60,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         {/* Modal Header */}
         <div className="flex items-center gap-2 mb-4">
           <div className="h-6 w-6 rounded bg-emerald-500 font-bold text-black text-xs flex items-center justify-center">
-            NM
+            FF
           </div>
           <div>
             <h3 className="text-base font-bold text-white leading-none">FOUNDERFIT Checkout</h3>

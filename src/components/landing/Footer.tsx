@@ -8,7 +8,7 @@ export const Footer: React.FC = () => {
       <div className="mx-auto max-w-xl space-y-3">
         <div className="flex items-center justify-center gap-2">
           <div className="flex h-5 w-5 items-center justify-center rounded bg-emerald-500 font-bold text-black text-[10px]">
-            NM
+            FF
           </div>
           <span className="font-bold tracking-tight text-white text-sm">FOUNDERFIT</span>
         </div>

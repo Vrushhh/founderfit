@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" fill="none">
+  <!-- F icon mark -->
+  <g>
+    <!-- Vertical stroke + top bar (the F shape with leaf) -->
+    <path d="M18 12 C18 12 18 12 26 12 L72 12 C78 12 82 16 82 22 C82 28 78 32 72 32 L38 32 L38 44 C50 44 64 40 72 36 C68 48 56 56 38 56 L38 88 C38 88 18 88 18 88 L18 12Z" fill="#0f0f0f"/>
+    <!-- Leaf middle bar -->
+    <path d="M38 44 C50 44 64 40 72 36 C68 48 56 56 38 56Z" fill="#0f0f0f"/>
+  </g>
+  <!-- FOUNDERFIT wordmark -->
+  <text x="100" y="68" font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="42" letter-spacing="6" fill="#0f0f0f">FOUNDERFIT</text>
+</svg>

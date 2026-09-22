@@ -142,3 +142,12 @@
     color: var(--color-foreground);
   }
 }
+
+/* ── Logo: invert black logo on dark backgrounds ─────────────────────────── */
+:root {
+  --logo-filter: none;
+}
+.dark {
+  --logo-filter: invert(1);
+}
+

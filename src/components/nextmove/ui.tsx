@@ -84,13 +84,27 @@ export function GhostButton({
   );
 }
 
-export function Wordmark({ className }: { className?: string }) {
-  return (
-    <span className={cn("inline-flex items-center gap-2", className)}>
-      <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-primary text-[11px] font-black text-primary-foreground">
-        N
+export function Wordmark({ className, iconOnly = false }: { className?: string; iconOnly?: boolean }) {
+  if (iconOnly) {
+    return (
+      <span className={cn("inline-flex items-center", className)}>
+        <img
+          src="/icon.svg"
+          alt="FounderFit"
+          className="h-7 w-auto"
+          style={{ filter: "var(--logo-filter, none)" }}
+        />
       </span>
-      <span className="text-sm font-extrabold tracking-[0.12em]">FOUNDERFIT</span>
+    );
+  }
+  return (
+    <span className={cn("inline-flex items-center", className)}>
+      <img
+        src="/logo.svg"
+        alt="FOUNDERFIT"
+        className="h-7 w-auto"
+        style={{ filter: "var(--logo-filter, none)" }}
+      />
     </span>
   );
 }

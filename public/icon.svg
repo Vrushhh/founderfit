@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 64" fill="currentColor">
+  <!--
+    FounderFit F-icon: thick vertical stem with rounded top-right corner,
+    top horizontal bar tapering to a point (right), and a leaf/swoosh middle bar.
+  -->
+  <path d="
+    M8,62
+    L8,8
+    C8,4.686 10.686,2 14,2
+    L44,2
+    C48,2 52,5 52,9
+    C52,13 49,16 45,16
+    L22,16
+    L22,28
+    C30,28 40,25 47,20
+    C44,33 34,40 22,40
+    L22,62
+    Z
+  "/>
+  <path d="M22,28 C30,28 40,25 47,20 C44,33 34,40 22,40 Z"/>
+</svg>

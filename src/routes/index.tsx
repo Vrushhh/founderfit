@@ -1,247 +1,432 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { Card, Eyebrow, Footer, GhostButton, PrimaryButton, Section, Wordmark } from "@/components/nextmove/ui";
-import { analytics } from "@/lib/nextmove/analytics";
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Wordmark } from "@/components/nextmove/ui";
+import { FRAMEWORKS } from "@/lib/consulting/frameworks";
+import { SAMPLE_CASES, SampleCase } from "@/lib/consulting/sampleCases";
+import { generateConsultingSolution } from "@/lib/consulting/consultingEngine";
+import { ConsultingCaseInput, ConsultingSolution, FrameworkId } from "@/lib/consulting/types";
+import { SolutionReportView } from "@/components/consulting/SolutionReportView";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "FounderFit — Find the business you should test next" },
+      { title: "FounderFit Strategy AI — Management Consulting Problem Solver" },
       {
         name: "description",
         content:
-          "Having difficult days at your desk job? Answer 10 questions and get a personalised Business Blueprint built for your skills, money, time and risk appetite. ₹299.",
+          "Input any company problem and solve it using elite McKinsey & FMS consulting frameworks: Profitability, Market Entry, Growth Strategy, Pricing, GTM, and M&A.",
       },
-      { property: "og:title", content: "FounderFit — Find the business you should test next" },
+      { property: "og:title", content: "FounderFit Strategy AI — Management Consulting Problem Solver" },
       {
         property: "og:description",
-        content: "10 questions. One personalised Business Blueprint. ₹299.",
+        content: "Turn complex business challenges into structured MECE decision trees and actionable executive plans.",
       },
     ],
   }),
-  component: Landing,
+  component: StrategyConsultingApp,
 });
 
-function CTA({ label = "Find My Business" }: { label?: string }) {
-  return (
-    <Link to="/assessment" className="block">
-      <PrimaryButton>{label}</PrimaryButton>
-    </Link>
-  );
-}
+function StrategyConsultingApp() {
+  const [companyName, setCompanyName] = useState("");
+  const [industry, setIndustry] = useState("");
+  const [geography, setGeography] = useState("");
+  const [problemStatement, setProblemStatement] = useState("");
+  const [selectedFramework, setSelectedFramework] = useState<FrameworkId | "auto">("auto");
+  const [apiKey, setApiKey] = useState("");
+  const [showApiSettings, setShowApiSettings] = useState(false);
 
-function Landing() {
+  const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
+  const [solution, setSolution] = useState<ConsultingSolution | null>(null);
+
+  // Load saved API key from localStorage if present
   useEffect(() => {
-    analytics.track("landing_view");
+    if (typeof window !== "undefined") {
+      const savedKey = localStorage.getItem("founderfit_gemini_key");
+      if (savedKey) setApiKey(savedKey);
+    }
   }, []);
 
+  const handleApiKeyChange = (key: string) => {
+    setApiKey(key);
+    if (typeof window !== "undefined") {
+      if (key) localStorage.setItem("founderfit_gemini_key", key);
+      else localStorage.removeItem("founderfit_gemini_key");
+    }
+  };
+
+  const loadSampleCase = (sample: SampleCase, autoRun = false) => {
+    setCompanyName(sample.companyName);
+    setIndustry(sample.industry || "");
+    setGeography(sample.geography || "");
+    setProblemStatement(sample.problemStatement);
+    setSelectedFramework(sample.frameworkId || "auto");
+
+    if (autoRun) {
+      runAnalysis({
+        companyName: sample.companyName,
+        industry: sample.industry,
+        geography: sample.geography,
+        problemStatement: sample.problemStatement,
+        frameworkId: sample.frameworkId,
+        apiKey,
+      });
+    }
+  };
+
+  const runAnalysis = async (customInput?: ConsultingCaseInput) => {
+    const input: ConsultingCaseInput = customInput || {
+      companyName: companyName.trim(),
+      industry: industry.trim(),
+      geography: geography.trim(),
+      problemStatement: problemStatement.trim(),
+      frameworkId: selectedFramework,
+      apiKey: apiKey.trim(),
+    };
+
+    if (!input.companyName) {
+      alert("Please provide a company or business name.");
+      return;
+    }
+    if (!input.problemStatement) {
+      alert("Please describe the business problem statement to analyze.");
+      return;
+    }
+
+    setLoading(true);
+    setLoadingStep(1);
+
+    // Simulated progress steps for premium consulting feel
+    const t1 = setTimeout(() => setLoadingStep(2), 700);
+    const t2 = setTimeout(() => setLoadingStep(3), 1500);
+
+    try {
+      const res = await generateConsultingSolution(input);
+      setSolution(res);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Analysis failed";
+      alert(`Strategy generation error: ${msg}`);
+    } finally {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      setLoading(false);
+      setLoadingStep(0);
+    }
+  };
+
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <header className="flex items-center justify-between px-5 py-4">
-        <Wordmark />
-        <span className="rounded-full border border-border px-3 py-1 text-xs font-semibold">₹299</span>
+    <main className="min-h-screen bg-background text-foreground transition-colors">
+      {/* Top Navigation */}
+      <header className="sticky top-0 z-40 border-b border-border/80 bg-background/80 backdrop-blur-md px-5 py-4">
+        <div className="mx-auto flex max-w-6xl items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Wordmark />
+            <span className="hidden sm:inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-primary">
+              Strategy Consulting AI
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowApiSettings(!showApiSettings)}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            >
+              <span>🔑</span>
+              <span>{apiKey ? "API Key Configured" : "Free AI Settings"}</span>
+            </button>
+          </div>
+        </div>
       </header>
 
-      {/* HERO */}
-      <section className="relative overflow-hidden px-5 pb-10 pt-2">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-24 right-[-30%] h-72 w-72 rounded-full bg-accent/15 blur-3xl"
-        />
-        <div className="relative mx-auto w-full max-w-lg lg:max-w-3xl">
-          <Eyebrow>For Indian corporate employees</Eyebrow>
-          <h1 className="text-[34px] font-extrabold leading-[1.08] tracking-tight sm:text-5xl">
-            Having difficult days at your desk job?
-          </h1>
-          <p className="mt-3 text-xl font-semibold text-muted-foreground sm:text-2xl">
-            Confused about what to do next?
-          </p>
-
-          <div className="mt-6">
-            <CTA />
-            <p className="mt-3 text-center text-sm text-muted-foreground">
-              10 questions • Personalised blueprint • ₹299
+      {/* API Key Modal / Drawer if clicked */}
+      {showApiSettings && (
+        <div className="border-b border-border bg-muted/40 p-5 animate-in slide-in-from-top-2 duration-200">
+          <div className="mx-auto max-w-3xl space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <span>⚡</span> AI Reasoning Model Configuration
+              </h4>
+              <button
+                onClick={() => setShowApiSettings(false)}
+                className="text-xs text-muted-foreground hover:text-foreground"
+              >
+                ✕ Close
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              FounderFit includes a **100% Free Built-in Management Consulting Engine** out of the box. You can optionally connect your free **Google Gemini Flash API Key** from{" "}
+              <a
+                href="https://aistudio.google.com/app/apikey"
+                target="_blank"
+                rel="noreferrer"
+                className="text-primary underline font-medium"
+              >
+                Google AI Studio (free, no credit card needed)
+              </a>{" "}
+              for real-time generative strategic synthesis.
             </p>
-          </div>
-
-          <div className="mt-8 grid grid-cols-3 gap-2 text-center">
-            {[
-              ["9:40 pm", "still on calls"],
-              ["EOD", "can you take this up?"],
-              ["1 year", "9% appraisal"],
-            ].map(([a, b]) => (
-              <div key={a} className="rounded-xl border border-border bg-card px-2 py-3">
-                <p className="text-sm font-bold">{a}</p>
-                <p className="mt-1 text-[11px] leading-tight text-muted-foreground">{b}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* PROBLEM */}
-      <Section className="bg-muted/60">
-        <h2 className="text-2xl font-extrabold leading-tight sm:text-3xl">
-          You don't need another motivational video.
-        </h2>
-        <p className="mt-2 text-xl font-semibold text-accent">You need clarity.</p>
-        <div className="mt-6 space-y-3">
-          {["I hate my job.", "I want to build something.", "I have no idea what to build."].map((t) => (
-            <Card key={t} className="text-lg font-semibold">
-              “{t}”
-            </Card>
-          ))}
-        </div>
-        <p className="mt-6 text-base font-semibold">FounderFit connects the dots.</p>
-      </Section>
-
-      {/* HOW IT WORKS */}
-      <Section>
-        <Eyebrow>How it works</Eyebrow>
-        <div className="space-y-3">
-          {[
-            ["01", "Answer 10 questions", "Only taps. No typing, no login, under 3 minutes."],
-            ["02", "We analyse your profile", "Skills, experience, money, time, risk appetite and goals."],
-            ["03", "Get your personal Business Blueprint", "One business worth testing first, with a 30 day plan."],
-          ].map(([n, t, d]) => (
-            <Card key={n} className="flex gap-4">
-              <span className="shrink-0 text-lg font-black text-accent">{n}</span>
-              <div className="min-w-0">
-                <p className="font-bold">{t}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{d}</p>
-              </div>
-            </Card>
-          ))}
-        </div>
-        <div className="mt-6">
-          <CTA />
-        </div>
-      </Section>
-
-      {/* WHAT YOU GET */}
-      <Section className="bg-primary text-primary-foreground">
-        <Eyebrow>What you get</Eyebrow>
-        <h2 className="text-2xl font-extrabold sm:text-3xl">Your Business Blueprint</h2>
-        <div className="mt-5 rounded-2xl border border-primary-foreground/15 bg-primary-foreground/[0.06] p-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-foreground/60">
-            Your business blueprint
-          </p>
-          <ul className="mt-4 space-y-3">
-            {[
-              "Primary business",
-              "Why it fits you",
-              "Business model",
-              "Starting capital",
-              "First customer",
-              "How to charge",
-              "First 7 days",
-              "First 30 days",
-              "What to avoid",
-            ].map((t) => (
-              <li key={t} className="flex items-center gap-3 border-b border-primary-foreground/10 pb-3 text-sm font-medium last:border-0 last:pb-0">
-                <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-accent text-[11px] font-black text-primary">
-                  ✓
-                </span>
-                {t}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <p className="mt-4 text-sm text-primary-foreground/70">
-          An actionable result you can start on this weekend — not a quiz score.
-        </p>
-      </Section>
-
-      {/* EXAMPLE RESULT */}
-      <Section className="bg-muted/60">
-        <Eyebrow>Example result</Eyebrow>
-        <Card>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Your business</p>
-          <h3 className="mt-1 text-2xl font-extrabold leading-tight">B2B Lead Generation Agency</h3>
-
-          <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Why it fits you</p>
-          <p className="mt-1 text-sm leading-relaxed">
-            You are comfortable with people, tolerate sales, have low initial capital requirements and prefer
-            autonomy over building a complex product.
-          </p>
-
-          <div className="mt-5 grid grid-cols-2 gap-3">
-            <div className="rounded-xl bg-muted p-3">
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Starting capital</p>
-              <p className="mt-1 text-sm font-bold">₹15,000 – ₹40,000</p>
-            </div>
-            <div className="rounded-xl bg-muted p-3">
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground">First target</p>
-              <p className="mt-1 text-sm font-bold">3 clients</p>
+            <div className="flex items-center gap-3">
+              <input
+                type="password"
+                placeholder="Paste Google Gemini API Key (e.g. AIzaSy...)"
+                value={apiKey}
+                onChange={(e) => handleApiKeyChange(e.target.value)}
+                className="flex-1 rounded-xl border border-border bg-background px-3.5 py-2 text-xs font-mono text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+              {apiKey && (
+                <button
+                  onClick={() => handleApiKeyChange("")}
+                  className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-medium text-red-500 hover:bg-muted"
+                >
+                  Clear Key
+                </button>
+              )}
             </div>
           </div>
+        </div>
+      )}
 
-          <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Example offer</p>
-          <p className="mt-1 text-sm leading-relaxed">
-            Lead generation for Indian clinics, coaching businesses or local service businesses.
-          </p>
+      {/* If solution exists, display executive report */}
+      {solution ? (
+        <div className="mx-auto max-w-6xl px-5 pt-8">
+          <SolutionReportView solution={solution} onReset={() => setSolution(null)} />
+        </div>
+      ) : (
+        /* Case Formulation Workspace */
+        <div className="mx-auto max-w-5xl px-5 py-10 space-y-12">
+          {/* Hero Section */}
+          <section className="text-center space-y-4 max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/60 px-3.5 py-1 text-xs font-bold text-muted-foreground">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              6 Core FMS Delhi &amp; McKinsey Frameworks Supported
+            </div>
+            <h1 className="text-3xl md:text-5xl font-black tracking-tight text-foreground leading-[1.12]">
+              The AI Management Consultant For Any Business Problem
+            </h1>
+            <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+              Input any company challenge — from profit declines to market entries and pricing.
+              Our agent deconstructs it into a rigorous MECE decision tree and executive action plan.
+            </p>
 
-          <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">First 30 days</p>
-          <div className="mt-2 space-y-2">
-            {[
-              ["Week 1", "Choose a niche and define the offer."],
-              ["Week 2", "Create a landing page and outreach system."],
-              ["Week 3", "Contact potential customers."],
-              ["Week 4", "Close and deliver your first pilot."],
-            ].map(([w, t]) => (
-              <div key={w} className="flex gap-3 text-sm">
-                <span className="w-16 shrink-0 font-bold">{w}</span>
-                <span className="min-w-0 text-muted-foreground">{t}</span>
+            {/* Framework Badges */}
+            <div className="flex flex-wrap justify-center gap-2 pt-2">
+              {Object.values(FRAMEWORKS).map((fw) => (
+                <button
+                  key={fw.id}
+                  onClick={() => setSelectedFramework(fw.id)}
+                  className={`rounded-xl border px-3 py-1.5 text-xs font-bold transition-all ${
+                    selectedFramework === fw.id
+                      ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                      : "border-border bg-card hover:border-primary/50 text-foreground"
+                  }`}
+                >
+                  {fw.title.replace(" Framework", "")}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Problem Input Console */}
+          <section className="rounded-3xl border border-border bg-card/80 backdrop-blur-md p-6 md:p-8 shadow-lg space-y-6">
+            <div className="border-b border-border/70 pb-4">
+              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+                <span>💼</span> Case Formulation &amp; Problem Intake
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Define the enterprise context or pick one of the pre-loaded benchmark cases below.
+              </p>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Company / Brand Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Zepto, Starbucks, Nike, D2C Apparel"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-semibold text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/40"
+                />
               </div>
-            ))}
-          </div>
-        </Card>
-        <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-          Recommendations are directional. Business outcomes are not guaranteed.
-        </p>
-      </Section>
 
-      {/* WHO IT IS FOR */}
-      <Section>
-        <Eyebrow>Who it is for</Eyebrow>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {[
-            "I work a corporate job.",
-            "I want to build something on the side.",
-            "I don't know what business fits me.",
-            "I want to eventually leave my job.",
-            "I don't want to blindly copy another startup.",
-          ].map((t) => (
-            <Card key={t} className="text-base font-semibold">
-              “{t}”
-            </Card>
-          ))}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Industry / Sector
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Quick Commerce, Fintech, B2B SaaS"
+                  value={industry}
+                  onChange={(e) => setIndustry(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-semibold text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/40"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Geography / Market
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. India (Tier 1), US, UAE & GCC"
+                  value={geography}
+                  onChange={(e) => setGeography(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-semibold text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/40"
+                />
+              </div>
+            </div>
+
+            {/* Problem Statement Area */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Business Problem Statement / Challenge <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                rows={4}
+                placeholder="Describe the exact challenge (e.g. EBITDA dropped from -8% to -24% over 6 months despite 40% order growth, or evaluating whether to expand our D2C skincare product line into the UAE market...)"
+                value={problemStatement}
+                onChange={(e) => setProblemStatement(e.target.value)}
+                className="w-full rounded-2xl border border-border bg-background p-4 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/40"
+              />
+            </div>
+
+            {/* Framework Option & Action CTA */}
+            <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
+              <div className="flex items-center gap-3">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  Target Framework:
+                </label>
+                <select
+                  value={selectedFramework}
+                  onChange={(e) => setSelectedFramework(e.target.value as FrameworkId | "auto")}
+                  className="rounded-xl border border-border bg-background px-3.5 py-2 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  <option value="auto">🤖 Auto-Diagnose Framework</option>
+                  <option value="profitability">📊 Profitability Framework (Profits = Rev - Cost)</option>
+                  <option value="market_entry">🌍 Market Entry Framework (Should Enter? + How?)</option>
+                  <option value="growth_strategy">📈 Growth Strategy (Organic vs Inorganic)</option>
+                  <option value="pricing_strategy">🏷️ Pricing Strategy (Value, Cost, Competitor)</option>
+                  <option value="gtm_launch">🚀 GTM / Launch (Segmentation, 4Ps, Be Selective)</option>
+                  <option value="mna">🤝 Mergers &amp; Acquisitions (Hard &amp; Soft Fit, Synergies)</option>
+                </select>
+              </div>
+
+              <button
+                onClick={() => runAnalysis()}
+                disabled={loading}
+                className="inline-flex items-center gap-2 rounded-2xl bg-primary px-8 py-3.5 text-sm font-extrabold text-primary-foreground shadow-md hover:bg-primary/90 transition-all disabled:opacity-50"
+              >
+                {loading ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                    <span>
+                      {loadingStep === 1
+                        ? "Diagnosing Case Context…"
+                        : loadingStep === 2
+                        ? "Constructing MECE Tree…"
+                        : "Synthesizing Strategy…"}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span>⚡ Run Strategic Breakdown</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </section>
+
+          {/* 1-Click Benchmark Test Cases */}
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-extrabold text-foreground flex items-center gap-2">
+                  <span>🎯</span> Pre-Loaded Case Studies (1-Click Test)
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Click any benchmark case to test the framework engine immediately.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-3.5 md:grid-cols-2 lg:grid-cols-3">
+              {SAMPLE_CASES.map((sample, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => loadSampleCase(sample, true)}
+                  className="group cursor-pointer rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:border-primary/60 hover:shadow-md hover:bg-muted/30 flex flex-col justify-between"
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                        {sample.badge}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground font-mono">Click to Run ➜</span>
+                    </div>
+                    <h4 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">
+                      {sample.companyName}
+                    </h4>
+                    <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                      {sample.tagline}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-border/50 text-[11px] text-muted-foreground/80 flex items-center justify-between">
+                    <span>{sample.industry}</span>
+                    <span className="font-semibold text-foreground">{sample.geography}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Framework Methodology Reference from FMS Delhi */}
+          <section className="rounded-3xl border border-border/70 bg-muted/20 p-6 md:p-8 space-y-6">
+            <div className="text-center max-w-xl mx-auto space-y-1.5">
+              <h3 className="text-base font-extrabold uppercase tracking-wider text-foreground">
+                Built On Global Top-Tier Consulting Methodologies
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Directly structured on Part D Consulting Frameworks from FMS Delhi (The Consulting Club).
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3 text-xs">
+              <div className="rounded-2xl border border-border bg-background/80 p-4 space-y-1.5">
+                <span className="font-extrabold text-amber-500">1. Profitability &amp; Value Chain</span>
+                <p className="text-muted-foreground leading-relaxed">
+                  Isolate volume vs price elasticity on the revenue side, and fixed vs variable costs across the full R&amp;D $\rightarrow$ Procurement $\rightarrow$ Logistics value chain.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-border bg-background/80 p-4 space-y-1.5">
+                <span className="font-extrabold text-blue-500">2. Market Entry &amp; Mode</span>
+                <p className="text-muted-foreground leading-relaxed">
+                  2-Phase evaluation: "Should They Enter?" (Product, STP TAM, Feasibility, Risks) followed by "If Yes, How?" (Greenfield, M&amp;A, Joint Venture).
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-border bg-background/80 p-4 space-y-1.5">
+                <span className="font-extrabold text-emerald-500">3. Growth Strategy &amp; GTM</span>
+                <p className="text-muted-foreground leading-relaxed">
+                  Ansoff matrix optimization for organic scale, M&amp;A integration for inorganic reach, and selective 4P execution for new product launches.
+                </p>
+              </div>
+            </div>
+          </section>
         </div>
-      </Section>
+      )}
 
-      {/* FINAL CTA */}
-      <Section className="bg-primary text-primary-foreground">
-        <h2 className="text-3xl font-extrabold leading-tight">Your next move shouldn't be a guess.</h2>
-        <p className="mt-3 text-primary-foreground/70">
-          Don't quit yet. Find the business worth testing first, then validate it.
+      {/* Footer */}
+      <footer className="border-t border-border/60 py-6 text-center text-xs text-muted-foreground">
+        <p>FounderFit Strategy AI — Management Consulting Problem Solver</p>
+        <p className="mt-1 text-[11px] text-muted-foreground/60">
+          Powered by elite consulting frameworks (Profitability, Market Entry, Growth, Pricing, GTM, M&amp;A).
         </p>
-        <div className="mt-6">
-          <Link to="/assessment" className="block">
-            <PrimaryButton className="bg-accent text-primary hover:bg-accent/90">
-              Find My Business — ₹299
-            </PrimaryButton>
-          </Link>
-          <div className="mt-3 flex justify-center">
-            <Link to="/assessment">
-              <GhostButton className="border-primary-foreground/25 bg-transparent text-primary-foreground hover:bg-primary-foreground/10">
-                See the 10 questions
-              </GhostButton>
-            </Link>
-          </div>
-        </div>
-      </Section>
-
-      <Footer />
+      </footer>
     </main>
   );
 }

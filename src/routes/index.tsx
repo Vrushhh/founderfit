@@ -18,6 +18,7 @@ import { LiveHeartbeatConsole } from "@/components/paperclip/LiveHeartbeatConsol
 import { CompanyGoalsView } from "@/components/paperclip/CompanyGoalsView";
 import { TicketDetailModal } from "@/components/paperclip/TicketDetailModal";
 import { NewTicketModal } from "@/components/paperclip/NewTicketModal";
+import { LiveAgentWorkspace } from "@/components/paperclip/LiveAgentWorkspace";
 import {
   Sparkles,
   Sliders,
@@ -323,8 +324,8 @@ function FounderLabApp() {
   const [step, setStep] = useState(0); // 0: Context, 1: Investigate, 2: Review, 3: Decision Brief
   const [tab, setTab] = useState<"diagnosis" | "evidence" | "research" | "actions" | "tree">("diagnosis");
 
-  // App Mode: Swarm Studio vs Paperclip Agent OS
-  const [appMode, setAppMode] = useState<"swarm_studio" | "paperclip_os">("swarm_studio");
+  // App Mode: Swarm Studio vs Live Agent Workspace vs Paperclip Agent OS
+  const [appMode, setAppMode] = useState<"swarm_studio" | "agent_workspace" | "paperclip_os">("swarm_studio");
 
   // Paperclip OS Organization State
   const [companies, setCompanies] = useState<Company[]>(DEFAULT_COMPANIES);
@@ -885,6 +886,27 @@ function FounderLabApp() {
               SWARM STUDIO
             </button>
             <button
+              onClick={() => setAppMode("agent_workspace")}
+              style={{
+                padding: "6px 14px",
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 600,
+                fontFamily: "var(--mono)",
+                border: 0,
+                cursor: "pointer",
+                background: appMode === "agent_workspace" ? "var(--blue)" : "transparent",
+                color: appMode === "agent_workspace" ? "#fff" : "var(--muted)",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                transition: "all 0.2s ease",
+              }}
+            >
+              <Users style={{ width: 13, height: 13 }} />
+              AGENT WORKSPACE
+            </button>
+            <button
               onClick={() => setAppMode("paperclip_os")}
               style={{
                 padding: "6px 14px",
@@ -1039,6 +1061,16 @@ function FounderLabApp() {
                 />
               )}
             </div>
+          </div>
+        ) : appMode === "agent_workspace" ? (
+          <div style={{ padding: "24px 0", maxWidth: 1280, margin: "0 auto", width: "100%" }}>
+            <LiveAgentWorkspace
+              founderCustomProblem={data.issue}
+              onInspectKanban={() => {
+                setAppMode("paperclip_os");
+                setPaperclipTab("board");
+              }}
+            />
           </div>
         ) : (
           <>
@@ -1333,267 +1365,21 @@ function FounderLabApp() {
                   </h1>
                 </div>
                 <p>
-                  The platform suggests a starting approach for <strong>{data.name}</strong>. Adjust the
-                  frameworks and add what you know.
+                  The platform suggests a starting approach for <strong>{data.name || "your startup"}</strong>.
+                  Watch the 6 autonomous consulting agents execute investigation workstreams, review findings,
+                  and formulate evidence-backed recommendations below.
                 </p>
               </div>
 
-              {/* ─── LIVE AGENT SWARM CHAMBER ─── */}
-              <div
-                className="card"
-                style={{
-                  marginBottom: 24,
-                  background: "var(--card-bg, #0b1329)",
-                  borderColor: "var(--blue)",
-                  boxShadow: "0 10px 30px rgba(37, 99, 235, 0.15)",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    borderBottom: "1px solid var(--line)",
-                    paddingBottom: 14,
-                    flexWrap: "wrap",
-                    gap: 12,
+              {/* ─── LIVE AGENT WORKSPACE (THE 6 AUTONOMOUS AGENTS IN ACTION) ─── */}
+              <div style={{ marginBottom: 28 }}>
+                <LiveAgentWorkspace
+                  founderCustomProblem={data.issue}
+                  onInspectKanban={() => {
+                    setAppMode("paperclip_os");
+                    setPaperclipTab("board");
                   }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <span className="relative flex h-3 w-3">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
-                    </span>
-                    <div>
-                      <h2
-                        style={{
-                          fontSize: 16,
-                          margin: 0,
-                          color: "#fff",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                        }}
-                      >
-                        <Cpu style={{ width: 18, height: 18, color: "var(--blue)" }} />
-                        PAPERCLIP MULTI-AGENT SWARM IN LIVE ACTION
-                      </h2>
-                      <span style={{ fontSize: 11, fontFamily: "var(--mono)", color: "var(--muted)" }}>
-                        Pulse #{totalPulses} • 5 C-Suite Agents collaborating autonomously • 100% Free Runtime ($0.00 Cost)
-                      </span>
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <button
-                      type="button"
-                      onClick={() => triggerHeartbeat()}
-                      className="badge"
-                      style={{
-                        cursor: "pointer",
-                        background: "rgba(37, 99, 235, 0.15)",
-                        color: "var(--blue)",
-                        borderColor: "var(--blue)",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 5,
-                      }}
-                    >
-                      <Zap style={{ width: 12, height: 12 }} /> Pulse Swarm Now
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAppMode("paperclip_os");
-                        setPaperclipTab("board");
-                      }}
-                      className="badge"
-                      style={{
-                        cursor: "pointer",
-                        background: "rgba(245, 158, 11, 0.15)",
-                        color: "var(--gold)",
-                        borderColor: "var(--gold)",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 5,
-                      }}
-                    >
-                      <Layers style={{ width: 12, height: 12 }} /> Inspect Kanban Board
-                    </button>
-                  </div>
-                </div>
-
-                {/* Active Agent Status Cards Grid */}
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
-                    gap: 10,
-                    marginTop: 16,
-                  }}
-                >
-                  {activeAgents.slice(0, 5).map((agent, idx) => {
-                    const isActive = swarmActiveAgentId === agent.id || (swarmPhase === idx + 1);
-                    const isPast = swarmPhase > idx + 1;
-                    return (
-                      <div
-                        key={agent.id}
-                        style={{
-                          padding: "12px 14px",
-                          borderRadius: 12,
-                          background: isActive
-                            ? "rgba(37, 99, 235, 0.18)"
-                            : "rgba(15, 23, 42, 0.65)",
-                          border: `1px solid ${
-                            isActive
-                              ? "var(--blue)"
-                              : isPast
-                              ? "rgba(59, 130, 246, 0.35)"
-                              : "rgba(226, 232, 240, 0.12)"
-                          }`,
-                          transition: "all 0.3s ease",
-                          transform: isActive ? "translateY(-2px)" : "none",
-                          boxShadow: isActive ? "0 4px 14px rgba(37, 99, 235, 0.3)" : "none",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            marginBottom: 6,
-                          }}
-                        >
-                          <span style={{ fontSize: 20 }}>{agent.avatar}</span>
-                          <span
-                            style={{
-                              fontSize: 9,
-                              fontFamily: "var(--mono)",
-                              padding: "2px 6px",
-                              borderRadius: 4,
-                              textTransform: "uppercase",
-                              fontWeight: 700,
-                              background: isActive
-                                ? "var(--blue)"
-                                : isPast
-                                ? "rgba(37, 99, 235, 0.25)"
-                                : "rgba(100, 116, 139, 0.2)",
-                              color: isActive ? "#fff" : isPast ? "#60a5fa" : "var(--muted)",
-                            }}
-                          >
-                            {isActive ? "⚡ EXECUTING" : isPast ? "✓ COMPLETED" : "STANDBY"}
-                          </span>
-                        </div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: "#fff" }}>{agent.name}</div>
-                        <div style={{ fontSize: 11, color: "var(--muted)", lineHeight: 1.3 }}>{agent.title}</div>
-                        <div
-                          style={{
-                            fontSize: 10,
-                            fontFamily: "var(--mono)",
-                            color: "var(--gold)",
-                            marginTop: 6,
-                          }}
-                        >
-                          {agent.modelRuntime} • $0.00 Free
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Real-time Telemetry Terminal Logs */}
-                <div style={{ marginTop: 16 }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      marginBottom: 6,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 11,
-                        fontFamily: "var(--mono)",
-                        color: "var(--muted)",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 6,
-                      }}
-                    >
-                      <Terminal style={{ width: 13, height: 13, color: "var(--blue)" }} />
-                      LIVE HEARTBEAT TELEMETRY LOGS (PAPERCLIP RUNTIME)
-                    </span>
-                    <span style={{ fontSize: 10, fontFamily: "var(--mono)", color: "var(--muted)" }}>
-                      {swarmTerminalLogs.length} Events Streamed
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      maxHeight: 180,
-                      overflowY: "auto",
-                      background: "rgba(2, 6, 23, 0.95)",
-                      borderRadius: 10,
-                      padding: 12,
-                      fontFamily: "var(--mono)",
-                      fontSize: 11,
-                      border: "1px solid rgba(226, 232, 240, 0.12)",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 6,
-                    }}
-                  >
-                    {swarmTerminalLogs.slice(0, 15).map((log) => (
-                      <div key={log.id} style={{ display: "flex", gap: 8, lineHeight: 1.4, color: "#cbd5e1" }}>
-                        <span style={{ color: "var(--muted)", flexShrink: 0 }}>
-                          [{new Date(log.timestamp).toLocaleTimeString()}]
-                        </span>
-                        <span
-                          style={{
-                            color:
-                              log.phase === "artifact"
-                                ? "#818cf8"
-                                : log.phase === "human_gate"
-                                ? "var(--gold)"
-                                : "#38bdf8",
-                            fontWeight: 600,
-                            flexShrink: 0,
-                          }}
-                        >
-                          [{log.agentName || "ORCHESTRATOR"}]:
-                        </span>
-                        <span>{log.message}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Fast-Track Actions */}
-                <div
-                  style={{
-                    marginTop: 16,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                    gap: 10,
-                  }}
-                >
-                  <span style={{ fontSize: 12, color: "var(--muted)" }}>
-                    Agents actively decomposing problem using {FRAMEWORK_DEFS[selectedFrameworks[0] || "profit"]?.name} Framework.
-                  </span>
-                  <button
-                    type="button"
-                    className="primary"
-                    onClick={() => {
-                      setStep(3);
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                    style={{ display: "flex", alignItems: "center", gap: 8 }}
-                  >
-                    <span>Proceed to Executive Decision Brief</span>
-                    <ArrowRight style={{ width: 14, height: 14 }} />
-                  </button>
-                </div>
+                />
               </div>
 
               <div className="grid">

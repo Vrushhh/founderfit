@@ -11,6 +11,7 @@ import {
   ALL_SCENARIOS,
   SCENARIO_SIGNUPS_NO_CUSTOMERS,
 } from "@/lib/consulting/agentSwarmData";
+import { executeLiveConsultingSwarm } from "@/lib/consulting/agentSwarmOrchestrator";
 import {
   Play,
   Pause,
@@ -53,9 +54,51 @@ export const LiveAgentWorkspace: React.FC<LiveAgentWorkspaceProps> = ({
   const [selectedScenarioId, setSelectedScenarioId] = useState<string>(
     SCENARIO_SIGNUPS_NO_CUSTOMERS.id
   );
+  const [customScenario, setCustomScenario] = useState<SwarmScenario | null>(null);
+  const [customProblemInput, setCustomProblemInput] = useState<string>(founderCustomProblem || "");
+  const [customCompanyName, setCustomCompanyName] = useState<string>("Founder Venture");
+  const [isGeneratingLive, setIsGeneratingLive] = useState<boolean>(false);
+  const [showCustomInputModal, setShowCustomInputModal] = useState<boolean>(false);
+  const [apiKey, setApiKey] = useState<string>("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedKey = localStorage.getItem("founderfit_gemini_key") || "";
+      if (savedKey) setApiKey(savedKey);
+    }
+  }, []);
+
   const scenario: SwarmScenario =
-    ALL_SCENARIOS.find((s) => s.id === selectedScenarioId) ||
-    SCENARIO_SIGNUPS_NO_CUSTOMERS;
+    customScenario && selectedScenarioId === customScenario.id
+      ? customScenario
+      : ALL_SCENARIOS.find((s) => s.id === selectedScenarioId) ||
+        SCENARIO_SIGNUPS_NO_CUSTOMERS;
+
+  const handleRunLiveCustomSwarm = async (problemToSolve?: string, compName?: string) => {
+    const text = problemToSolve || customProblemInput || founderCustomProblem;
+    if (!text || text.trim().length === 0) {
+      setShowCustomInputModal(true);
+      return;
+    }
+    setIsGeneratingLive(true);
+    try {
+      const generated = await executeLiveConsultingSwarm({
+        problemStatement: text.trim(),
+        companyName: compName || customCompanyName || "Founder Venture",
+        apiKey,
+      });
+      setCustomScenario(generated);
+      setSelectedScenarioId(generated.id);
+      setCurrentStepIndex(0);
+      setIsPlaying(true);
+      setShowCustomInputModal(false);
+    } catch (err) {
+      console.error("Live Swarm Error:", err);
+      alert("Encountered an issue running the live swarm. Falling back to structured mode.");
+    } finally {
+      setIsGeneratingLive(false);
+    }
+  };
 
   // Swarm execution state
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
@@ -262,7 +305,7 @@ export const LiveAgentWorkspace: React.FC<LiveAgentWorkspaceProps> = ({
 
           {/* Action & Playback Controls */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            {/* Scenario Selector */}
+            {/* Scenario Selector with Presets vs Live Run */}
             <select
               value={selectedScenarioId}
               onChange={(e) => {
@@ -272,12 +315,41 @@ export const LiveAgentWorkspace: React.FC<LiveAgentWorkspaceProps> = ({
               }}
               className="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:border-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
             >
-              {ALL_SCENARIOS.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.title}
-                </option>
-              ))}
+              <optgroup label="✨ Demo Presets ($0.00)">
+                {ALL_SCENARIOS.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.title}
+                  </option>
+                ))}
+              </optgroup>
+              {customScenario && (
+                <optgroup label="⚡ Live AI Dynamic Run">
+                  <option value={customScenario.id}>
+                    {customScenario.title}
+                  </option>
+                </optgroup>
+              )}
             </select>
+
+            {/* Launch Live AI on My Case Button */}
+            <button
+              onClick={() => setShowCustomInputModal(true)}
+              disabled={isGeneratingLive}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-md shadow-blue-950/40 flex items-center gap-1.5 border border-cyan-400/40 transition-all cursor-pointer"
+              title="Execute a dynamic, live 6-agent swarm on any custom startup problem"
+            >
+              {isGeneratingLive ? (
+                <>
+                  <RotateCcw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Synthesizing Live AI Swarm...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
+                  <span>Run Live on Custom Case</span>
+                </>
+              )}
+            </button>
 
             {/* Play/Pause Button */}
             <button
@@ -972,6 +1044,104 @@ export const LiveAgentWorkspace: React.FC<LiveAgentWorkspaceProps> = ({
                 className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs"
               >
                 Close Deliverable
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── 8. CUSTOM CASE INTAKE MODAL ── */}
+      {showCustomInputModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-xl flex flex-col rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl overflow-hidden text-slate-100">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-cyan-400" />
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
+                  LAUNCH DYNAMIC 6-AGENT SWARM
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowCustomInputModal(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <p className="text-xs text-slate-300">
+                Enter any real startup challenge. The 6 AI agents will dynamically formulate an Investigation Plan, crawl benchmarks, perform quantitative checks, issue red-team challenges, and synthesize an executive decision brief.
+              </p>
+
+              <div>
+                <label className="block text-[11px] font-mono text-slate-400 uppercase font-semibold mb-1">
+                  Startup / Venture Name
+                </label>
+                <input
+                  type="text"
+                  value={customCompanyName}
+                  onChange={(e) => setCustomCompanyName(e.target.value)}
+                  placeholder="e.g. DentAI Labs, Apex SaaS"
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-slate-950 border border-slate-800 focus:border-cyan-500 text-white focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[11px] font-mono text-slate-400 uppercase font-semibold">
+                    Startup Problem Statement
+                  </label>
+                  {founderCustomProblem && (
+                    <button
+                      type="button"
+                      onClick={() => setCustomProblemInput(founderCustomProblem)}
+                      className="text-[10px] font-mono text-cyan-400 hover:underline"
+                    >
+                      Use Problem from Step 01
+                    </button>
+                  )}
+                </div>
+                <textarea
+                  rows={4}
+                  value={customProblemInput}
+                  onChange={(e) => setCustomProblemInput(e.target.value)}
+                  placeholder="e.g. We have built an AI receptionist for clinics, but 40% of bookings cancel within 24 hours. Our CAC has grown from $60 to $180."
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-slate-950 border border-slate-800 focus:border-cyan-500 text-white focus:outline-none leading-relaxed"
+                />
+              </div>
+
+              <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-850 flex items-center justify-between text-[11px] font-mono text-slate-400">
+                <span>Model Engine: Gemini 1.5 Flash + Local Dynamic Engine</span>
+                <span className="text-cyan-400 font-bold">$0.00 Free</span>
+              </div>
+            </div>
+
+            <div className="px-6 py-3 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => setShowCustomInputModal(false)}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isGeneratingLive || !customProblemInput.trim()}
+                onClick={() => handleRunLiveCustomSwarm(customProblemInput, customCompanyName)}
+                className="px-4 py-2 rounded-lg text-xs font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-md"
+              >
+                {isGeneratingLive ? (
+                  <>
+                    <RotateCcw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Orchestrating 6 Agents...</span>
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-3.5 h-3.5 text-cyan-300" />
+                    <span>Run Multi-Agent Swarm</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

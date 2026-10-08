@@ -43,12 +43,14 @@ import {
 interface LiveAgentWorkspaceProps {
   onInspectKanban?: () => void;
   founderCustomProblem?: string;
+  companyName?: string;
   className?: string;
 }
 
 export const LiveAgentWorkspace: React.FC<LiveAgentWorkspaceProps> = ({
   onInspectKanban,
   founderCustomProblem,
+  companyName,
   className = "",
 }) => {
   const [selectedScenarioId, setSelectedScenarioId] = useState<string>(
@@ -56,10 +58,23 @@ export const LiveAgentWorkspace: React.FC<LiveAgentWorkspaceProps> = ({
   );
   const [customScenario, setCustomScenario] = useState<SwarmScenario | null>(null);
   const [customProblemInput, setCustomProblemInput] = useState<string>(founderCustomProblem || "");
-  const [customCompanyName, setCustomCompanyName] = useState<string>("Founder Venture");
+  const [customCompanyName, setCustomCompanyName] = useState<string>(companyName || "Founder Venture");
   const [isGeneratingLive, setIsGeneratingLive] = useState<boolean>(false);
   const [showCustomInputModal, setShowCustomInputModal] = useState<boolean>(false);
   const [apiKey, setApiKey] = useState<string>("");
+
+  // Sync with incoming parent case data
+  useEffect(() => {
+    if (founderCustomProblem) {
+      setCustomProblemInput(founderCustomProblem);
+    }
+  }, [founderCustomProblem]);
+
+  useEffect(() => {
+    if (companyName) {
+      setCustomCompanyName(companyName);
+    }
+  }, [companyName]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {

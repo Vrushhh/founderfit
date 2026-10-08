@@ -318,7 +318,7 @@ function routeFrameworks(issueText: string): string[] {
   return matched.length ? matched : ["growth", "gtm"];
 }
 
-type ThemeMode = "sapphire" | "dark" | "violet" | "bordeaux";
+type ThemeMode = "sapphire" | "dark" | "light" | "violet" | "bordeaux";
 
 function FounderLabApp() {
   const [step, setStep] = useState(0); // 0: Context, 1: Investigate, 2: Review, 3: Decision Brief
@@ -858,28 +858,30 @@ function FounderLabApp() {
             style={{
               display: "flex",
               alignItems: "center",
-              background: "rgba(15, 23, 42, 0.08)",
-              padding: 3,
-              borderRadius: 10,
+              background: "rgba(255, 255, 255, 0.04)",
+              padding: 4,
+              borderRadius: 12,
               border: "1px solid var(--line)",
+              backdropFilter: "blur(10px)",
             }}
           >
             <button
               onClick={() => setAppMode("swarm_studio")}
               style={{
-                padding: "6px 14px",
-                borderRadius: 8,
+                padding: "7px 16px",
+                borderRadius: 9,
                 fontSize: 12,
                 fontWeight: 600,
                 fontFamily: "var(--mono)",
                 border: 0,
                 cursor: "pointer",
-                background: appMode === "swarm_studio" ? "var(--blue)" : "transparent",
-                color: appMode === "swarm_studio" ? "#fff" : "var(--muted)",
+                background: appMode === "swarm_studio" ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "transparent",
+                color: appMode === "swarm_studio" ? "#ffffff" : "var(--muted)",
+                boxShadow: appMode === "swarm_studio" ? "0 2px 10px rgba(37, 99, 235, 0.4)" : "none",
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
-                transition: "all 0.2s ease",
+                transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
               }}
             >
               <Zap style={{ width: 13, height: 13 }} />
@@ -888,19 +890,20 @@ function FounderLabApp() {
             <button
               onClick={() => setAppMode("agent_workspace")}
               style={{
-                padding: "6px 14px",
-                borderRadius: 8,
+                padding: "7px 16px",
+                borderRadius: 9,
                 fontSize: 12,
                 fontWeight: 600,
                 fontFamily: "var(--mono)",
                 border: 0,
                 cursor: "pointer",
-                background: appMode === "agent_workspace" ? "var(--blue)" : "transparent",
-                color: appMode === "agent_workspace" ? "#fff" : "var(--muted)",
+                background: appMode === "agent_workspace" ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "transparent",
+                color: appMode === "agent_workspace" ? "#ffffff" : "var(--muted)",
+                boxShadow: appMode === "agent_workspace" ? "0 2px 10px rgba(37, 99, 235, 0.4)" : "none",
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
-                transition: "all 0.2s ease",
+                transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
               }}
             >
               <Users style={{ width: 13, height: 13 }} />
@@ -909,19 +912,20 @@ function FounderLabApp() {
             <button
               onClick={() => setAppMode("paperclip_os")}
               style={{
-                padding: "6px 14px",
-                borderRadius: 8,
+                padding: "7px 16px",
+                borderRadius: 9,
                 fontSize: 12,
                 fontWeight: 600,
                 fontFamily: "var(--mono)",
                 border: 0,
                 cursor: "pointer",
-                background: appMode === "paperclip_os" ? "var(--blue)" : "transparent",
-                color: appMode === "paperclip_os" ? "#fff" : "var(--muted)",
+                background: appMode === "paperclip_os" ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "transparent",
+                color: appMode === "paperclip_os" ? "#ffffff" : "var(--muted)",
+                boxShadow: appMode === "paperclip_os" ? "0 2px 10px rgba(37, 99, 235, 0.4)" : "none",
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
-                transition: "all 0.2s ease",
+                transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
               }}
             >
               <Cpu style={{ width: 13, height: 13 }} />
@@ -1066,6 +1070,7 @@ function FounderLabApp() {
           <div style={{ padding: "24px 0", maxWidth: 1280, margin: "0 auto", width: "100%" }}>
             <LiveAgentWorkspace
               founderCustomProblem={data.issue}
+              companyName={data.name}
               onInspectKanban={() => {
                 setAppMode("paperclip_os");
                 setPaperclipTab("board");
@@ -1257,7 +1262,7 @@ function FounderLabApp() {
 
                   <div className="actions form-actions">
                     <span className="status">
-                      <span className="status-symbol" style={{ color: "var(--blue)" }}>●</span> 5 AUTONOMOUS AGENTS STANDING BY
+                      <span className="status-symbol" style={{ color: "var(--blue)" }}>●</span> 6 AUTONOMOUS AGENTS STANDING BY
                     </span>
                     <button type="submit" className="primary" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <Zap style={{ width: 14, height: 14 }} />
@@ -1375,6 +1380,7 @@ function FounderLabApp() {
               <div style={{ marginBottom: 28 }}>
                 <LiveAgentWorkspace
                   founderCustomProblem={data.issue}
+                  companyName={data.name}
                   onInspectKanban={() => {
                     setAppMode("paperclip_os");
                     setPaperclipTab("board");
@@ -2121,30 +2127,37 @@ function FounderLabApp() {
                 {
                   id: "sapphire",
                   name: "Midnight Sapphire",
-                  desc: "Electric Cobalt & Midnight Obsidian with Warm Amber highlights (Default)",
-                  accent: "#2563eb",
-                  previewBg: "#f8fafc",
+                  desc: "Electric Cyan & Midnight Obsidian with Warm Amber highlights (Default)",
+                  accent: "#38bdf8",
+                  previewBg: "#070c18",
                 },
                 {
                   id: "dark",
                   name: "Obsidian Stealth",
-                  desc: "High-contrast dark mode with ice blue highlights & deep shadow cards",
-                  accent: "#38bdf8",
-                  previewBg: "#090d16",
+                  desc: "Pure deep graphitic obsidian with ice cyan highlights & dark glass cards",
+                  accent: "#60a5fa",
+                  previewBg: "#030508",
+                },
+                {
+                  id: "light",
+                  name: "Executive Ivory",
+                  desc: "High-contrast minimalist ivory & corporate deep navy strategy palette",
+                  accent: "#2563eb",
+                  previewBg: "#f8fafc",
                 },
                 {
                   id: "violet",
-                  name: "Electric Violet",
-                  desc: "Cyber Indigo & Royal Amethyst with luminous crimson accents",
-                  accent: "#7c3aed",
-                  previewBg: "#faf7fd",
+                  name: "Electric Amethyst",
+                  desc: "Cyber Indigo & Royal Purple with Amethyst Glow highlights",
+                  accent: "#a855f7",
+                  previewBg: "#090514",
                 },
                 {
                   id: "bordeaux",
                   name: "Royal Bordeaux",
-                  desc: "Luxury Mahogany Wine & Warm Champagne Gold venture palette",
-                  accent: "#9f1239",
-                  previewBg: "#faf6f6",
+                  desc: "Luxury Crimson Cabernet & Warm Champagne Gold venture palette",
+                  accent: "#f43f5e",
+                  previewBg: "#100407",
                 },
               ].map((t) => (
                 <button

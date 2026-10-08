@@ -41,7 +41,7 @@ export function CompanyGoalsView({ goals, tickets, onOpenTicket, onAddGoal }: Pr
       <div className="flex items-center justify-between pb-4 border-b border-stone-800">
         <div>
           <h2 className="text-base font-semibold text-stone-100 flex items-center gap-2">
-            <Target className="w-5 h-5 text-emerald-400" />
+            <Target className="w-5 h-5 text-blue-400" />
             Strategic Company Goals & Objectives (OKRs)
           </h2>
           <p className="text-xs text-stone-400 mt-1">
@@ -70,10 +70,10 @@ export function CompanyGoalsView({ goals, tickets, onOpenTicket, onAddGoal }: Pr
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-800 uppercase font-semibold">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-950/80 text-blue-300 border border-blue-800 uppercase font-semibold">
                     {goal.status}
                   </span>
-                  <span className="text-xs font-mono text-emerald-400 font-bold">
+                  <span className="text-xs font-mono text-amber-400 font-bold">
                     {goal.progressPct}% Complete
                   </span>
                 </div>
@@ -84,7 +84,7 @@ export function CompanyGoalsView({ goals, tickets, onOpenTicket, onAddGoal }: Pr
                 {/* Progress bar */}
                 <div className="mt-4 w-full bg-stone-800 h-2 rounded-full overflow-hidden">
                   <div
-                    className="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                    className="bg-blue-500 h-full rounded-full transition-all duration-500"
                     style={{ width: `${goal.progressPct}%` }}
                   ></div>
                 </div>
@@ -137,7 +137,7 @@ export function CompanyGoalsView({ goals, tickets, onOpenTicket, onAddGoal }: Pr
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Expand Enterprise Footprint in Southeast Asia"
-                  className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-blue-500"
                 />
               </div>
               <div>
@@ -147,7 +147,7 @@ export function CompanyGoalsView({ goals, tickets, onOpenTicket, onAddGoal }: Pr
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Strategic context, key hypotheses, and target milestones..."
-                  className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-blue-500"
                 />
               </div>
               <div>
@@ -157,7 +157,7 @@ export function CompanyGoalsView({ goals, tickets, onOpenTicket, onAddGoal }: Pr
                   value={targetMetric}
                   onChange={(e) => setTargetMetric(e.target.value)}
                   placeholder="e.g. $2.5M Net ARR or +15% Contribution Margin"
-                  className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-blue-500"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-3 border-t border-stone-800">
@@ -170,7 +170,7 @@ export function CompanyGoalsView({ goals, tickets, onOpenTicket, onAddGoal }: Pr
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium transition-colors cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium transition-colors cursor-pointer"
                 >
                   Create Goal
                 </button>

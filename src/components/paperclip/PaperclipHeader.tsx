@@ -48,7 +48,7 @@ export function PaperclipHeader({
           {/* Logo & Company Dropdown */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-mono font-bold text-base shadow-sm">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 font-mono font-bold text-base shadow-sm">
                 📎
               </div>
               <div className="hidden sm:block">
@@ -87,7 +87,7 @@ export function PaperclipHeader({
                       }}
                       className={`w-full text-left px-3 py-2 text-xs flex flex-col transition-colors cursor-pointer ${
                         comp.id === selectedCompany.id
-                          ? "bg-emerald-950/40 text-emerald-300"
+                          ? "bg-blue-950/40 text-blue-300"
                           : "text-stone-300 hover:bg-stone-800"
                       }`}
                     >
@@ -137,7 +137,7 @@ export function PaperclipHeader({
               <Activity className="w-3.5 h-3.5 text-cyan-400" />
               Heartbeat
               {isAutoHeartbeat && (
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
               )}
             </button>
 
@@ -157,8 +157,8 @@ export function PaperclipHeader({
               onClick={() => onSelectTab("consulting")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                 activeTab === "consulting"
-                  ? "bg-emerald-950 text-emerald-300 border border-emerald-800 shadow-xs"
-                  : "text-emerald-400/80 hover:text-emerald-300"
+                  ? "bg-blue-950 text-blue-300 border border-blue-800 shadow-xs"
+                  : "text-blue-400/80 hover:text-blue-300"
               }`}
             >
               <Sparkles className="w-3.5 h-3.5" />
@@ -170,7 +170,7 @@ export function PaperclipHeader({
           <div className="flex items-center gap-2">
             <button
               onClick={onTriggerHeartbeat}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-900 border border-stone-800 hover:border-emerald-500/50 text-emerald-400 font-medium text-xs transition-colors cursor-pointer shadow-sm"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-900 border border-stone-800 hover:border-blue-500/50 text-blue-400 font-medium text-xs transition-colors cursor-pointer shadow-sm"
               title="Execute a single Heartbeat tick"
             >
               <Zap className="w-3.5 h-3.5" />
@@ -179,7 +179,7 @@ export function PaperclipHeader({
 
             <button
               onClick={onNewTicket}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs transition-colors cursor-pointer shadow-sm"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs transition-colors cursor-pointer shadow-sm"
             >
               <Plus className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">New Ticket</span>
@@ -189,7 +189,7 @@ export function PaperclipHeader({
               onClick={onOpenSettings}
               className={`p-2 rounded-xl border transition-colors cursor-pointer ${
                 hasApiKey
-                  ? "bg-emerald-950/60 border-emerald-800 text-emerald-400"
+                  ? "bg-blue-950/60 border-blue-800 text-blue-400"
                   : "bg-stone-900 border-stone-800 text-stone-400 hover:text-stone-200"
               }`}
               title="Configure Gemini Flash API Key / Free tier"
@@ -227,7 +227,7 @@ export function PaperclipHeader({
           </button>
           <button
             onClick={() => onSelectTab("consulting")}
-            className={`px-2.5 py-1 rounded-lg ${activeTab === "consulting" ? "bg-emerald-950 text-emerald-300" : "text-emerald-400"}`}
+            className={`px-2.5 py-1 rounded-lg ${activeTab === "consulting" ? "bg-blue-950 text-blue-300" : "text-blue-400"}`}
           >
             Solver
           </button>

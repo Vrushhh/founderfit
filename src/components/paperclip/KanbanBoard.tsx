@@ -17,7 +17,7 @@ const COLUMNS: { id: TicketStatus; label: string; color: string }[] = [
   { id: "assigned", label: "Assigned (Queued)", color: "border-cyan-800/80 bg-cyan-950/20" },
   { id: "in_progress", label: "In Progress (Checked Out)", color: "border-purple-800/80 bg-purple-950/20" },
   { id: "review", label: "Human Review Gate", color: "border-amber-800/80 bg-amber-950/20" },
-  { id: "done", label: "Completed", color: "border-emerald-800/80 bg-emerald-950/20" },
+  { id: "done", label: "Completed", color: "border-blue-800/80 bg-blue-950/20" },
 ];
 
 export function KanbanBoard({
@@ -84,7 +84,7 @@ export function KanbanBoard({
 
         <button
           onClick={onNewTicket}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs shadow-sm transition-colors cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs shadow-sm transition-colors cursor-pointer"
         >
           <Plus className="w-3.5 h-3.5" />
           Create Task Ticket
@@ -139,7 +139,7 @@ export function KanbanBoard({
                         </div>
 
                         {/* Title */}
-                        <h4 className="text-xs font-medium text-stone-100 group-hover:text-emerald-300 transition-colors line-clamp-2">
+                        <h4 className="text-xs font-medium text-stone-100 group-hover:text-blue-300 transition-colors line-clamp-2">
                           {ticket.title}
                         </h4>
 
@@ -166,7 +166,7 @@ export function KanbanBoard({
                               <button
                                 onClick={() => onOpenTicket(ticket)}
                                 title="View Deliverable"
-                                className="p-1 rounded bg-stone-800 hover:bg-stone-700 text-emerald-400 transition-colors"
+                                className="p-1 rounded bg-stone-800 hover:bg-stone-700 text-blue-400 transition-colors"
                               >
                                 <FileText className="w-3.5 h-3.5" />
                               </button>
@@ -176,7 +176,7 @@ export function KanbanBoard({
                               <button
                                 onClick={() => onApproveTicket(ticket.id)}
                                 title="Approve Ticket"
-                                className="p-1 rounded bg-emerald-950 text-emerald-300 hover:bg-emerald-900 border border-emerald-800 transition-colors text-[10px] flex items-center gap-1 px-1.5 font-medium"
+                                className="p-1 rounded bg-blue-950 text-blue-300 hover:bg-blue-900 border border-blue-800 transition-colors text-[10px] flex items-center gap-1 px-1.5 font-medium"
                               >
                                 <CheckCircle2 className="w-3 h-3" />
                                 Approve
@@ -187,7 +187,7 @@ export function KanbanBoard({
                               <button
                                 onClick={() => onTriggerTicketHeartbeat(ticket.id)}
                                 title="Run Ticket on Heartbeat Now"
-                                className="p-1 rounded bg-emerald-900/60 text-emerald-300 hover:bg-emerald-800 border border-emerald-700 transition-colors"
+                                className="p-1 rounded bg-blue-900/60 text-blue-300 hover:bg-blue-800 border border-blue-700 transition-colors"
                               >
                                 <Zap className="w-3.5 h-3.5" />
                               </button>

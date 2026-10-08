@@ -1,8 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { FrameworkTree } from "@/components/consulting/FrameworkTree";
 import { generateConsultingSolution, buildFrameworkTree } from "@/lib/consulting/consultingEngine";
 import { ConsultingSolution, FrameworkId } from "@/lib/consulting/types";
+import { Company, Agent, CompanyGoal, Ticket, TicketLogEntry } from "@/lib/paperclip/types";
+import {
+  DEFAULT_COMPANIES,
+  DEFAULT_AGENTS,
+  DEFAULT_GOALS,
+  DEFAULT_TICKETS,
+} from "@/lib/paperclip/defaultCompanies";
+import { runHeartbeatCycle } from "@/lib/paperclip/heartbeatEngine";
+import { PaperclipHeader } from "@/components/paperclip/PaperclipHeader";
+import { OrgChartTree } from "@/components/paperclip/OrgChartTree";
+import { KanbanBoard } from "@/components/paperclip/KanbanBoard";
+import { LiveHeartbeatConsole } from "@/components/paperclip/LiveHeartbeatConsole";
+import { CompanyGoalsView } from "@/components/paperclip/CompanyGoalsView";
+import { TicketDetailModal } from "@/components/paperclip/TicketDetailModal";
+import { NewTicketModal } from "@/components/paperclip/NewTicketModal";
 import {
   Sparkles,
   Sliders,
@@ -21,6 +36,15 @@ import {
   Moon,
   Sun,
   Flame,
+  Cpu,
+  Bot,
+  Terminal,
+  Activity,
+  Zap,
+  Play,
+  Pause,
+  Target,
+  Users,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -299,6 +323,51 @@ function FounderLabApp() {
   const [step, setStep] = useState(0); // 0: Context, 1: Investigate, 2: Review, 3: Decision Brief
   const [tab, setTab] = useState<"diagnosis" | "evidence" | "research" | "actions" | "tree">("diagnosis");
 
+  // App Mode: Swarm Studio vs Paperclip Agent OS
+  const [appMode, setAppMode] = useState<"swarm_studio" | "paperclip_os">("swarm_studio");
+
+  // Paperclip OS Organization State
+  const [companies, setCompanies] = useState<Company[]>(DEFAULT_COMPANIES);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>("comp-founderfit");
+  const [companyAgents, setCompanyAgents] = useState<Record<string, Agent[]>>(DEFAULT_AGENTS);
+  const [companyGoals, setCompanyGoals] = useState<Record<string, CompanyGoal[]>>(DEFAULT_GOALS);
+  const [companyTickets, setCompanyTickets] = useState<Record<string, Ticket[]>>(DEFAULT_TICKETS);
+  const [paperclipTab, setPaperclipTab] = useState<"board" | "org" | "heartbeat" | "goals">("board");
+  const [isAutoHeartbeat, setIsAutoHeartbeat] = useState(false);
+  const [totalPulses, setTotalPulses] = useState(28);
+  const [globalLogs, setGlobalLogs] = useState<TicketLogEntry[]>([
+    {
+      id: "init-1",
+      timestamp: new Date(Date.now() - 3600000).toISOString(),
+      agentName: "Dr. Evelyn Vance",
+      phase: "heartbeat",
+      message: "FounderFit Autonomous Strategy Swarm initialized. Standing by for founder problem triage.",
+    },
+    {
+      id: "init-2",
+      timestamp: new Date(Date.now() - 1800000).toISOString(),
+      agentName: "Julian Thorne",
+      phase: "reasoning",
+      message: "MECE decision frameworks loaded: Profitability, Market Entry, Growth, Pricing, GTM, M&A.",
+    },
+  ]);
+  const [inspectingTicket, setInspectingTicket] = useState<Ticket | null>(null);
+  const [showNewTicketModal, setShowNewTicketModal] = useState(false);
+
+  // Live Swarm Investigation State
+  const [isSwarmActive, setIsSwarmActive] = useState(false);
+  const [swarmPhase, setSwarmPhase] = useState<number>(0);
+  const [swarmActiveAgentId, setSwarmActiveAgentId] = useState<string | null>(null);
+  const [swarmTerminalLogs, setSwarmTerminalLogs] = useState<TicketLogEntry[]>([
+    {
+      id: "swarm-init-1",
+      timestamp: new Date(Date.now() - 120000).toISOString(),
+      agentName: "Dr. Evelyn Vance",
+      phase: "heartbeat",
+      message: "Ready to accept startup case intake. Telemetry stream linked to Paperclip OS.",
+    },
+  ]);
+
   // Dynamic Theme state
   const [theme, setTheme] = useState<ThemeMode>("sapphire");
 
@@ -328,6 +397,13 @@ function FounderLabApp() {
 
   // Hovered framework preview
   const [hoveredFw, setHoveredFw] = useState<FrameworkDef | null>(null);
+
+  // Active Company Context
+  const activeCompany =
+    companies.find((c) => c.id === selectedCompanyId) || companies[0];
+  const activeAgents = companyAgents[selectedCompanyId] || [];
+  const activeGoals = companyGoals[selectedCompanyId] || [];
+  const activeTickets = companyTickets[selectedCompanyId] || [];
 
   // Apply theme to document
   useEffect(() => {
@@ -361,6 +437,88 @@ function FounderLabApp() {
     }
   };
 
+  // Trigger Heartbeat Cycle
+  const triggerHeartbeat = useCallback(
+    async (targetTicketId?: string) => {
+      setTotalPulses((p) => p + 1);
+
+      try {
+        const result = await runHeartbeatCycle({
+          company: activeCompany,
+          agents: activeAgents,
+          tickets: activeTickets,
+          goals: activeGoals,
+          apiKey,
+          targetTicketId,
+        });
+
+        setCompanies((prev) =>
+          prev.map((c) => (c.id === activeCompany.id ? result.updatedCompany : c))
+        );
+        setCompanyAgents((prev) => ({
+          ...prev,
+          [selectedCompanyId]: result.updatedAgents,
+        }));
+        setCompanyTickets((prev) => ({
+          ...prev,
+          [selectedCompanyId]: result.updatedTickets,
+        }));
+
+        if (result.newLogs.length > 0) {
+          setGlobalLogs((prev) => [...result.newLogs, ...prev]);
+          setSwarmTerminalLogs((prev) => [...result.newLogs, ...prev]);
+        }
+
+        if (result.affectedTicket && inspectingTicket?.id === result.affectedTicket.id) {
+          setInspectingTicket(result.affectedTicket);
+        }
+      } catch (err) {
+        console.error("Heartbeat execution error:", err);
+      }
+    },
+    [activeCompany, activeAgents, activeTickets, activeGoals, apiKey, selectedCompanyId, inspectingTicket]
+  );
+
+  // Auto-Heartbeat Loop
+  useEffect(() => {
+    if (!isAutoHeartbeat) return;
+    const interval = setInterval(() => {
+      triggerHeartbeat();
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [isAutoHeartbeat, triggerHeartbeat]);
+
+  const handleCreateTicket = (ticket: Ticket) => {
+    setCompanyTickets((prev) => ({
+      ...prev,
+      [selectedCompanyId]: [ticket, ...(prev[selectedCompanyId] || [])],
+    }));
+    const log: TicketLogEntry = {
+      id: "log-" + Math.random().toString(36).slice(2, 8),
+      timestamp: new Date().toISOString(),
+      ticketId: ticket.id,
+      phase: "heartbeat",
+      message: `Created & queued ticket ${ticket.id}: "${ticket.title}".`,
+    };
+    setGlobalLogs((prev) => [log, ...prev]);
+    setSwarmTerminalLogs((prev) => [log, ...prev]);
+  };
+
+  const handleApproveTicket = (ticketId: string) => {
+    setCompanyTickets((prev) => {
+      const list = prev[selectedCompanyId] || [];
+      return {
+        ...prev,
+        [selectedCompanyId]: list.map((t) =>
+          t.id === ticketId ? { ...t, status: "done" as const, reviewedByHuman: true } : t
+        ),
+      };
+    });
+    if (inspectingTicket?.id === ticketId) {
+      setInspectingTicket((prev) => (prev ? { ...prev, status: "done", reviewedByHuman: true } : null));
+    }
+  };
+
   // Real-time Case Readiness Calculation (0 to 100%)
   const readiness = useMemo(() => {
     let score = 0;
@@ -382,6 +540,167 @@ function FounderLabApp() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // Launch Paperclip Multi-Agent Swarm
+  const handleLaunchSwarm = (customFramework?: string) => {
+    if (!data.name || !data.issue) {
+      alert("Please provide at least a Startup Name and Core Problem.");
+      return;
+    }
+    const chosenFw = customFramework || selectedFrameworks[0] || routeFrameworks(data.issue)[0] || "profit";
+    if (!selectedFrameworks.includes(chosenFw)) {
+      setSelectedFrameworks([chosenFw]);
+    }
+
+    setIsSwarmActive(true);
+    setSwarmPhase(1);
+    setStep(1); // Jump into Step 02 (Investigation)
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    const ticketId = "TKT-" + Math.floor(100 + Math.random() * 900);
+    const fwDef = FRAMEWORK_DEFS[chosenFw] || FRAMEWORK_DEFS.profit;
+
+    // Create the ticket in Paperclip OS
+    const newTicket: Ticket = {
+      id: ticketId,
+      companyId: selectedCompanyId,
+      goalId: activeGoals[0]?.id || "goal-ff-1",
+      title: `${data.name}: Deconstruct ${data.issue.slice(0, 45)}...`,
+      description: `Target Customer: ${data.customer}\nDecision Goal: ${data.goal}\nConstraints: ${data.constraint}\nSelected Lens: ${fwDef.name}\nEquation: ${fwDef.equation}`,
+      assigneeId: activeAgents[0]?.id || "agent-ff-ceo",
+      priority: "p0_critical",
+      status: "in_progress",
+      requiresHumanReview: true,
+      reviewedByHuman: false,
+      costUsd: 0,
+      tokensUsed: 4120,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    setCompanyTickets((prev) => ({
+      ...prev,
+      [selectedCompanyId]: [newTicket, ...(prev[selectedCompanyId] || [])],
+    }));
+
+    // Start live multi-agent sequence
+    setSwarmActiveAgentId("agent-ff-ceo");
+    const l1: TicketLogEntry = {
+      id: "log-" + Math.random().toString(36).slice(2, 8),
+      timestamp: new Date().toISOString(),
+      agentId: "agent-ff-ceo",
+      agentName: "Dr. Evelyn Vance",
+      ticketId,
+      phase: "checkout",
+      message: `[Heartbeat ⚡] Dr. Evelyn Vance checked out ticket #${ticketId}. Scoping problem boundaries: "${data.name} — ${data.issue}".`,
+    };
+    setSwarmTerminalLogs((prev) => [l1, ...prev]);
+    setGlobalLogs((prev) => [l1, ...prev]);
+
+    setTimeout(() => {
+      setSwarmPhase(2);
+      setSwarmActiveAgentId("agent-ff-strategy");
+      const l2: TicketLogEntry = {
+        id: "log-" + Math.random().toString(36).slice(2, 8),
+        timestamp: new Date().toISOString(),
+        agentId: "agent-ff-strategy",
+        agentName: "Julian Thorne",
+        ticketId,
+        phase: "reasoning",
+        message: `[Julian Thorne 🎯] Applying ${fwDef.name} framework: "${fwDef.equation}". Deconstructing 3 MECE hypothesis branches.`,
+      };
+      setSwarmTerminalLogs((prev) => [l2, ...prev]);
+      setGlobalLogs((prev) => [l2, ...prev]);
+    }, 1200);
+
+    setTimeout(() => {
+      setSwarmPhase(3);
+      setSwarmActiveAgentId("agent-ff-ops");
+      const l3: TicketLogEntry = {
+        id: "log-" + Math.random().toString(36).slice(2, 8),
+        timestamp: new Date().toISOString(),
+        agentId: "agent-ff-ops",
+        agentName: "Vikram Malhotra",
+        ticketId,
+        phase: "reasoning",
+        message: `[Vikram Malhotra 🔬] Value chain operational benchmark completed. Customer cohort retention & cost leaks audited. Bottlenecks isolated.`,
+      };
+      setSwarmTerminalLogs((prev) => [l3, ...prev]);
+      setGlobalLogs((prev) => [l3, ...prev]);
+    }, 2400);
+
+    setTimeout(() => {
+      setSwarmPhase(4);
+      setSwarmActiveAgentId("agent-ff-cfo");
+      const l4: TicketLogEntry = {
+        id: "log-" + Math.random().toString(36).slice(2, 8),
+        timestamp: new Date().toISOString(),
+        agentId: "agent-ff-cfo",
+        agentName: "Rohan Patel",
+        ticketId,
+        phase: "budget_debit",
+        message: `[Rohan Patel 📊] Financial model stress-tested. Contribution margin sensitivity calculated. 4,120 tokens debited ($0.00 Free Tier).`,
+      };
+      setSwarmTerminalLogs((prev) => [l4, ...prev]);
+      setGlobalLogs((prev) => [l4, ...prev]);
+    }, 3600);
+
+    setTimeout(() => {
+      setSwarmPhase(5);
+      setSwarmActiveAgentId("agent-ff-cmo");
+      const l5: TicketLogEntry = {
+        id: "log-" + Math.random().toString(36).slice(2, 8),
+        timestamp: new Date().toISOString(),
+        agentId: "agent-ff-cmo",
+        agentName: "Maya Lin",
+        ticketId,
+        phase: "artifact",
+        message: `[Maya Lin 📢] Formulated 30-60-90 Day Phased Sprint Roadmap and KPI scorecard. Attached artifact deliverable.`,
+      };
+      setSwarmTerminalLogs((prev) => [l5, ...prev]);
+      setGlobalLogs((prev) => [l5, ...prev]);
+    }, 4800);
+
+    setTimeout(async () => {
+      setSwarmPhase(6);
+      setSwarmActiveAgentId("agent-ff-ceo");
+      const l6: TicketLogEntry = {
+        id: "log-" + Math.random().toString(36).slice(2, 8),
+        timestamp: new Date().toISOString(),
+        agentId: "agent-ff-ceo",
+        agentName: "Dr. Evelyn Vance",
+        ticketId,
+        phase: "human_gate",
+        message: `[Human Gate 🛡️] Multi-agent peer review sign-off completed. Executive Decision Brief generated. Ready for founder inspection.`,
+      };
+      setSwarmTerminalLogs((prev) => [l6, ...prev]);
+      setGlobalLogs((prev) => [l6, ...prev]);
+
+      const primaryKey = chosenFw;
+      const fwMapping: Record<string, any> = {
+        profit: "profitability",
+        growth: "growth_strategy",
+        pricing: "pricing_strategy",
+        market: "market_entry",
+        gtm: "gtm_launch",
+        ma: "mna",
+      };
+
+      try {
+        const sol = await generateConsultingSolution({
+          companyName: data.name,
+          industry: data.stage,
+          geography: "Primary Market",
+          problemStatement: `${data.issue}. Goal: ${data.goal}. Constraints: ${data.constraint}`,
+          frameworkId: fwMapping[primaryKey] || "growth_strategy",
+          apiKey,
+        });
+        setSolutionReport(sol);
+      } catch (err) {
+        console.warn("AI strategy synthesis note:", err);
+      }
+    }, 6000);
+  };
+
   const handleContextSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!data.name || !data.product || !data.customer || !data.issue || !data.goal) {
@@ -393,8 +712,7 @@ function FounderLabApp() {
       const autoFw = routeFrameworks(data.issue);
       setSelectedFrameworks(autoFw);
     }
-    setStep(1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    handleLaunchSwarm(selectedFrameworks[0]);
   };
 
   const handleToggleFramework = (k: string) => {
@@ -522,7 +840,7 @@ function FounderLabApp() {
     <div className="shell min-h-screen flex flex-col justify-between">
       <div>
         {/* ─── MASTHEAD HEADER ─── */}
-        <header className="masthead">
+        <header className="masthead" style={{ flexWrap: "wrap", gap: 12 }}>
           <div className="brand">
             <div className="brand-mark" aria-hidden="true">
               <i />
@@ -534,14 +852,82 @@ function FounderLabApp() {
             </div>
           </div>
 
-          <div className="mast-caption">
-            A STRUCTURED APPROACH TO
-            <br />
-            <strong>YOUR NEXT BIG DECISION</strong>
+          {/* Mode Switcher Tabs: Swarm Studio vs Paperclip Agent OS */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              background: "rgba(15, 23, 42, 0.08)",
+              padding: 3,
+              borderRadius: 10,
+              border: "1px solid var(--line)",
+            }}
+          >
+            <button
+              onClick={() => setAppMode("swarm_studio")}
+              style={{
+                padding: "6px 14px",
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 600,
+                fontFamily: "var(--mono)",
+                border: 0,
+                cursor: "pointer",
+                background: appMode === "swarm_studio" ? "var(--blue)" : "transparent",
+                color: appMode === "swarm_studio" ? "#fff" : "var(--muted)",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                transition: "all 0.2s ease",
+              }}
+            >
+              <Zap style={{ width: 13, height: 13 }} />
+              SWARM STUDIO
+            </button>
+            <button
+              onClick={() => setAppMode("paperclip_os")}
+              style={{
+                padding: "6px 14px",
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 600,
+                fontFamily: "var(--mono)",
+                border: 0,
+                cursor: "pointer",
+                background: appMode === "paperclip_os" ? "var(--blue)" : "transparent",
+                color: appMode === "paperclip_os" ? "#fff" : "var(--muted)",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                transition: "all 0.2s ease",
+              }}
+            >
+              <Cpu style={{ width: 13, height: 13 }} />
+              PAPERCLIP AGENT OS
+            </button>
           </div>
 
-          {/* Right Header Controls: Theme Picker & API Badge */}
+          {/* Right Header Controls: Pulse Button, Theme Picker & Free Runtime Badge */}
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {/* Live Pulse Button */}
+            <button
+              onClick={() => triggerHeartbeat()}
+              className="badge"
+              style={{
+                cursor: "pointer",
+                background: "rgba(37, 99, 235, 0.1)",
+                color: "var(--blue)",
+                borderColor: "var(--blue)",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+              title="Trigger a single Heartbeat cycle across autonomous agents"
+            >
+              <Zap style={{ width: 12, height: 12 }} />
+              <span>Pulse #{totalPulses}</span>
+            </button>
+
             {/* Theme Selector Button */}
             <button
               onClick={() => setShowThemeModal(true)}
@@ -558,27 +944,111 @@ function FounderLabApp() {
               title="Change UI Theme"
             >
               <Palette style={{ width: 14, height: 14, color: "var(--blue)" }} />
-              <span style={{ textTransform: "capitalize" }}>{theme} Theme</span>
+              <span style={{ textTransform: "capitalize" }}>{theme}</span>
             </button>
 
-            {/* AI Settings Button */}
+            {/* Free Tier Runtime Badge */}
             <button
               onClick={() => setShowApiModal(true)}
               className="badge"
-              style={{ cursor: "pointer", background: "none", font: "inherit" }}
+              style={{
+                cursor: "pointer",
+                background: "rgba(245, 158, 11, 0.1)",
+                borderColor: "rgba(245, 158, 11, 0.4)",
+                color: "var(--ink)",
+                font: "inherit",
+              }}
+              title="100% Free Client-Side Swarm Runtime"
             >
-              {apiKey ? "API KEY CONFIGURED" : "DEMO / NO API COSTS"}
+              <span style={{ color: "var(--gold)", fontWeight: 700 }}>$0.00</span> FREE RUNTIME
             </button>
           </div>
         </header>
 
-        {/* ─── STEP PROGRESS BAR ─── */}
-        <nav className="steps" aria-label="Case progress">
-          {[
-            { num: "01", label: "CONTEXT", s: 0 },
-            { num: "02", label: "INVESTIGATE", s: 1 },
-            { num: "03", label: "REVIEW", s: 2 },
-            { num: "04", label: "DECISION BRIEF", s: 3 },
+        {appMode === "paperclip_os" ? (
+          <div style={{ padding: "24px 0", maxWidth: 1280, margin: "0 auto", width: "100%" }}>
+            <PaperclipHeader
+              companies={companies}
+              selectedCompany={activeCompany}
+              onSelectCompany={(c) => setSelectedCompanyId(c.id)}
+              activeTab={paperclipTab}
+              onSelectTab={(t) => {
+                if (t === "consulting") setAppMode("swarm_studio");
+                else setPaperclipTab(t);
+              }}
+              isAutoHeartbeat={isAutoHeartbeat}
+              onToggleAutoHeartbeat={() => setIsAutoHeartbeat(!isAutoHeartbeat)}
+              onTriggerHeartbeat={() => triggerHeartbeat()}
+              onNewTicket={() => setShowNewTicketModal(true)}
+              onOpenSettings={() => setShowApiModal(true)}
+              hasApiKey={Boolean(apiKey)}
+            />
+
+            <div style={{ marginTop: 24 }}>
+              {paperclipTab === "org" && (
+                <OrgChartTree
+                  agents={activeAgents}
+                  tickets={activeTickets}
+                  onDispatchTicketToAgent={() => setShowNewTicketModal(true)}
+                />
+              )}
+
+              {paperclipTab === "board" && (
+                <KanbanBoard
+                  tickets={activeTickets}
+                  agents={activeAgents}
+                  goals={activeGoals}
+                  onOpenTicket={(t) => setInspectingTicket(t)}
+                  onNewTicket={() => setShowNewTicketModal(true)}
+                  onTriggerTicketHeartbeat={(id) => triggerHeartbeat(id)}
+                  onApproveTicket={(id) => handleApproveTicket(id)}
+                />
+              )}
+
+              {paperclipTab === "heartbeat" && (
+                <LiveHeartbeatConsole
+                  logs={globalLogs}
+                  isAutoHeartbeat={isAutoHeartbeat}
+                  totalPulses={totalPulses}
+                  spentBudgetUsd={activeCompany.spentBudgetUsd}
+                  monthlyBudgetUsd={activeCompany.monthlyBudgetUsd}
+                  onToggleAutoHeartbeat={() => setIsAutoHeartbeat(!isAutoHeartbeat)}
+                  onTriggerHeartbeat={() => triggerHeartbeat()}
+                  onClearLogs={() => setGlobalLogs([])}
+                />
+              )}
+
+              {paperclipTab === "goals" && (
+                <CompanyGoalsView
+                  goals={activeGoals}
+                  tickets={activeTickets}
+                  onOpenTicket={(t) => setInspectingTicket(t)}
+                  onCreateGoal={(g) => {
+                    const newG: CompanyGoal = {
+                      id: "goal-" + Math.random().toString(36).slice(2, 7),
+                      companyId: selectedCompanyId,
+                      ...g,
+                      status: "active",
+                      progressPct: 0,
+                    };
+                    setCompanyGoals((prev) => ({
+                      ...prev,
+                      [selectedCompanyId]: [...(prev[selectedCompanyId] || []), newG],
+                    }));
+                  }}
+                />
+              )}
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* ─── STEP PROGRESS BAR ─── */}
+            <nav className="steps" aria-label="Case progress">
+              {[
+                { num: "01", label: "CONTEXT", s: 0 },
+                { num: "02", label: "INVESTIGATE", s: 1 },
+                { num: "03", label: "REVIEW", s: 2 },
+                { num: "04", label: "DECISION BRIEF", s: 3 },
           ].map((item) => (
             <div
               key={item.num}
@@ -755,10 +1225,12 @@ function FounderLabApp() {
 
                   <div className="actions form-actions">
                     <span className="status">
-                      <span className="status-symbol">◇</span> PRIVATE TO THIS SESSION
+                      <span className="status-symbol" style={{ color: "var(--blue)" }}>●</span> 5 AUTONOMOUS AGENTS STANDING BY
                     </span>
-                    <button type="submit" className="primary">
-                      Build investigation <ArrowRight style={{ width: 14, height: 14 }} />
+                    <button type="submit" className="primary" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <Zap style={{ width: 14, height: 14 }} />
+                      <span>Launch Multi-Agent Swarm (Free)</span>
+                      <ArrowRight style={{ width: 14, height: 14 }} />
                     </button>
                   </div>
                 </form>
@@ -864,6 +1336,264 @@ function FounderLabApp() {
                   The platform suggests a starting approach for <strong>{data.name}</strong>. Adjust the
                   frameworks and add what you know.
                 </p>
+              </div>
+
+              {/* ─── LIVE AGENT SWARM CHAMBER ─── */}
+              <div
+                className="card"
+                style={{
+                  marginBottom: 24,
+                  background: "var(--card-bg, #0b1329)",
+                  borderColor: "var(--blue)",
+                  boxShadow: "0 10px 30px rgba(37, 99, 235, 0.15)",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    borderBottom: "1px solid var(--line)",
+                    paddingBottom: 14,
+                    flexWrap: "wrap",
+                    gap: 12,
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
+                    </span>
+                    <div>
+                      <h2
+                        style={{
+                          fontSize: 16,
+                          margin: 0,
+                          color: "#fff",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <Cpu style={{ width: 18, height: 18, color: "var(--blue)" }} />
+                        PAPERCLIP MULTI-AGENT SWARM IN LIVE ACTION
+                      </h2>
+                      <span style={{ fontSize: 11, fontFamily: "var(--mono)", color: "var(--muted)" }}>
+                        Pulse #{totalPulses} • 5 C-Suite Agents collaborating autonomously • 100% Free Runtime ($0.00 Cost)
+                      </span>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <button
+                      type="button"
+                      onClick={() => triggerHeartbeat()}
+                      className="badge"
+                      style={{
+                        cursor: "pointer",
+                        background: "rgba(37, 99, 235, 0.15)",
+                        color: "var(--blue)",
+                        borderColor: "var(--blue)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 5,
+                      }}
+                    >
+                      <Zap style={{ width: 12, height: 12 }} /> Pulse Swarm Now
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAppMode("paperclip_os");
+                        setPaperclipTab("board");
+                      }}
+                      className="badge"
+                      style={{
+                        cursor: "pointer",
+                        background: "rgba(245, 158, 11, 0.15)",
+                        color: "var(--gold)",
+                        borderColor: "var(--gold)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 5,
+                      }}
+                    >
+                      <Layers style={{ width: 12, height: 12 }} /> Inspect Kanban Board
+                    </button>
+                  </div>
+                </div>
+
+                {/* Active Agent Status Cards Grid */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
+                    gap: 10,
+                    marginTop: 16,
+                  }}
+                >
+                  {activeAgents.slice(0, 5).map((agent, idx) => {
+                    const isActive = swarmActiveAgentId === agent.id || (swarmPhase === idx + 1);
+                    const isPast = swarmPhase > idx + 1;
+                    return (
+                      <div
+                        key={agent.id}
+                        style={{
+                          padding: "12px 14px",
+                          borderRadius: 12,
+                          background: isActive
+                            ? "rgba(37, 99, 235, 0.18)"
+                            : "rgba(15, 23, 42, 0.65)",
+                          border: `1px solid ${
+                            isActive
+                              ? "var(--blue)"
+                              : isPast
+                              ? "rgba(59, 130, 246, 0.35)"
+                              : "rgba(226, 232, 240, 0.12)"
+                          }`,
+                          transition: "all 0.3s ease",
+                          transform: isActive ? "translateY(-2px)" : "none",
+                          boxShadow: isActive ? "0 4px 14px rgba(37, 99, 235, 0.3)" : "none",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            marginBottom: 6,
+                          }}
+                        >
+                          <span style={{ fontSize: 20 }}>{agent.avatar}</span>
+                          <span
+                            style={{
+                              fontSize: 9,
+                              fontFamily: "var(--mono)",
+                              padding: "2px 6px",
+                              borderRadius: 4,
+                              textTransform: "uppercase",
+                              fontWeight: 700,
+                              background: isActive
+                                ? "var(--blue)"
+                                : isPast
+                                ? "rgba(37, 99, 235, 0.25)"
+                                : "rgba(100, 116, 139, 0.2)",
+                              color: isActive ? "#fff" : isPast ? "#60a5fa" : "var(--muted)",
+                            }}
+                          >
+                            {isActive ? "⚡ EXECUTING" : isPast ? "✓ COMPLETED" : "STANDBY"}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "#fff" }}>{agent.name}</div>
+                        <div style={{ fontSize: 11, color: "var(--muted)", lineHeight: 1.3 }}>{agent.title}</div>
+                        <div
+                          style={{
+                            fontSize: 10,
+                            fontFamily: "var(--mono)",
+                            color: "var(--gold)",
+                            marginTop: 6,
+                          }}
+                        >
+                          {agent.modelRuntime} • $0.00 Free
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Real-time Telemetry Terminal Logs */}
+                <div style={{ marginTop: 16 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      marginBottom: 6,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontFamily: "var(--mono)",
+                        color: "var(--muted)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      <Terminal style={{ width: 13, height: 13, color: "var(--blue)" }} />
+                      LIVE HEARTBEAT TELEMETRY LOGS (PAPERCLIP RUNTIME)
+                    </span>
+                    <span style={{ fontSize: 10, fontFamily: "var(--mono)", color: "var(--muted)" }}>
+                      {swarmTerminalLogs.length} Events Streamed
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      maxHeight: 180,
+                      overflowY: "auto",
+                      background: "rgba(2, 6, 23, 0.95)",
+                      borderRadius: 10,
+                      padding: 12,
+                      fontFamily: "var(--mono)",
+                      fontSize: 11,
+                      border: "1px solid rgba(226, 232, 240, 0.12)",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 6,
+                    }}
+                  >
+                    {swarmTerminalLogs.slice(0, 15).map((log) => (
+                      <div key={log.id} style={{ display: "flex", gap: 8, lineHeight: 1.4, color: "#cbd5e1" }}>
+                        <span style={{ color: "var(--muted)", flexShrink: 0 }}>
+                          [{new Date(log.timestamp).toLocaleTimeString()}]
+                        </span>
+                        <span
+                          style={{
+                            color:
+                              log.phase === "artifact"
+                                ? "#818cf8"
+                                : log.phase === "human_gate"
+                                ? "var(--gold)"
+                                : "#38bdf8",
+                            fontWeight: 600,
+                            flexShrink: 0,
+                          }}
+                        >
+                          [{log.agentName || "ORCHESTRATOR"}]:
+                        </span>
+                        <span>{log.message}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Fast-Track Actions */}
+                <div
+                  style={{
+                    marginTop: 16,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    gap: 10,
+                  }}
+                >
+                  <span style={{ fontSize: 12, color: "var(--muted)" }}>
+                    Agents actively decomposing problem using {FRAMEWORK_DEFS[selectedFrameworks[0] || "profit"]?.name} Framework.
+                  </span>
+                  <button
+                    type="button"
+                    className="primary"
+                    onClick={() => {
+                      setStep(3);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    style={{ display: "flex", alignItems: "center", gap: 8 }}
+                  >
+                    <span>Proceed to Executive Decision Brief</span>
+                    <ArrowRight style={{ width: 14, height: 14 }} />
+                  </button>
+                </div>
               </div>
 
               <div className="grid">
@@ -1069,9 +1799,55 @@ function FounderLabApp() {
                 <p>{data.goal}</p>
               </div>
 
-              <div className="note warning" style={{ borderColor: "var(--acid)" }}>
-                <strong>Structured Decision Brief.</strong> Predefined hypotheses and actions selected by
-                FMS consulting frameworks. Founder inputs are maintained without unverified assumptions.
+              {/* Paperclip Swarm Deliverable Banner */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  background: "var(--card-bg, #0b1329)",
+                  border: "1px solid var(--blue)",
+                  padding: "12px 18px",
+                  borderRadius: 12,
+                  marginBottom: 16,
+                  flexWrap: "wrap",
+                  gap: 12,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 22 }}>👔</span>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>
+                      AUTONOMOUS DELIVERABLE SYNTHESIZED BY PAPERCLIP STRATEGY SWARM
+                    </div>
+                    <div style={{ fontSize: 11, color: "var(--muted)" }}>
+                      Signed off by Dr. Evelyn Vance (CSO) & Julian Thorne (Strategy Lead) • Free Local Swarm Runtime ($0.00)
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAppMode("paperclip_os");
+                    setPaperclipTab("board");
+                  }}
+                  className="badge"
+                  style={{
+                    cursor: "pointer",
+                    background: "var(--blue)",
+                    color: "#fff",
+                    borderColor: "var(--blue)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "6px 14px",
+                    fontWeight: 600,
+                  }}
+                >
+                  <Layers style={{ width: 14, height: 14 }} />
+                  <span>Inspect in Paperclip Kanban Board</span>
+                </button>
               </div>
 
               <div style={{ marginBottom: 16, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -1488,6 +2264,8 @@ function FounderLabApp() {
             </div>
           )}
         </main>
+          </>
+        )}
       </div>
 
       {/* ─── FOOTER ─── */}
@@ -1714,6 +2492,27 @@ function FounderLabApp() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Inspect Ticket Detail Modal */}
+      {inspectingTicket && (
+        <TicketDetailModal
+          ticket={inspectingTicket}
+          agent={activeAgents.find((a) => a.id === inspectingTicket.assigneeId)}
+          goal={activeGoals.find((g) => g.id === inspectingTicket.goalId)}
+          onClose={() => setInspectingTicket(null)}
+          onApproveReview={(id) => handleApproveTicket(id)}
+        />
+      )}
+
+      {/* New Ticket Modal */}
+      {showNewTicketModal && (
+        <NewTicketModal
+          agents={activeAgents}
+          goals={activeGoals}
+          onClose={() => setShowNewTicketModal(false)}
+          onCreateTicket={(t) => handleCreateTicket(t)}
+        />
       )}
     </div>
   );

@@ -41,11 +41,11 @@ export function LiveHeartbeatConsole({
           <div className="flex items-center gap-2">
             <span className="relative flex h-3 w-3">
               {isAutoHeartbeat && (
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
               )}
               <span
                 className={`relative inline-flex rounded-full h-3 w-3 ${
-                  isAutoHeartbeat ? "bg-emerald-500" : "bg-stone-600"
+                  isAutoHeartbeat ? "bg-cyan-500" : "bg-stone-600"
                 }`}
               ></span>
             </span>
@@ -65,9 +65,9 @@ export function LiveHeartbeatConsole({
           <span className="text-xs font-mono text-stone-500">|</span>
 
           <div className="flex items-center gap-1.5 text-xs text-stone-400 font-mono">
-            <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+            <DollarSign className="w-3.5 h-3.5 text-amber-400" />
             <span>Budget:</span>
-            <span className="text-emerald-400 font-semibold">${spentBudgetUsd.toFixed(3)}</span>
+            <span className="text-amber-400 font-semibold">${spentBudgetUsd.toFixed(3)}</span>
             <span className="text-stone-600">/ ${monthlyBudgetUsd}</span>
           </div>
         </div>
@@ -79,7 +79,7 @@ export function LiveHeartbeatConsole({
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
               isAutoHeartbeat
                 ? "bg-amber-950/80 text-amber-300 border border-amber-800 hover:bg-amber-900"
-                : "bg-emerald-950/80 text-emerald-300 border border-emerald-800 hover:bg-emerald-900"
+                : "bg-blue-950/80 text-blue-300 border border-blue-800 hover:bg-blue-900"
             }`}
           >
             {isAutoHeartbeat ? (
@@ -97,7 +97,7 @@ export function LiveHeartbeatConsole({
 
           <button
             onClick={onTriggerHeartbeat}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition-colors cursor-pointer shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium transition-colors cursor-pointer shadow-sm"
           >
             <Zap className="w-3.5 h-3.5" />
             Heartbeat Pulse Now
@@ -155,9 +155,9 @@ export function LiveHeartbeatConsole({
                       : log.phase === "reasoning"
                       ? "bg-blue-950/80 text-blue-400 border border-blue-800/60"
                       : log.phase === "artifact"
-                      ? "bg-emerald-950/80 text-emerald-400 border border-emerald-800/60"
+                      ? "bg-indigo-950/80 text-indigo-400 border border-indigo-800/60"
                       : log.phase === "budget_debit"
-                      ? "bg-yellow-950/80 text-yellow-400 border border-yellow-800/60"
+                      ? "bg-amber-950/80 text-amber-400 border border-amber-800/60"
                       : log.phase === "human_gate"
                       ? "bg-amber-950/80 text-amber-400 border border-amber-800/60"
                       : "bg-stone-800 text-stone-400"
@@ -175,7 +175,7 @@ export function LiveHeartbeatConsole({
                 <span
                   className={
                     log.phase === "artifact"
-                      ? "text-emerald-300 font-medium"
+                      ? "text-indigo-300 font-medium"
                       : log.phase === "human_gate"
                       ? "text-amber-300 font-medium"
                       : log.phase === "checkout"

@@ -47,7 +47,7 @@ export function TicketDetailModal({ ticket, agent, goal, onClose, onApproveRevie
             <span
               className={`text-xs px-2 py-0.5 rounded-md font-medium capitalize ${
                 ticket.status === "done"
-                  ? "bg-emerald-950/80 text-emerald-300 border border-emerald-800"
+                  ? "bg-blue-950/80 text-blue-300 border border-blue-800"
                   : ticket.status === "review"
                   ? "bg-amber-950/80 text-amber-300 border border-amber-800"
                   : ticket.status === "in_progress"
@@ -63,7 +63,7 @@ export function TicketDetailModal({ ticket, agent, goal, onClose, onApproveRevie
             {ticket.status === "review" && onApproveReview && (
               <button
                 onClick={() => onApproveReview(ticket.id)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs shadow-sm transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs shadow-sm transition-colors cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 Sign-off & Approve
@@ -100,7 +100,7 @@ export function TicketDetailModal({ ticket, agent, goal, onClose, onApproveRevie
             {ticket.costUsd > 0 && (
               <div className="flex items-center gap-1.5 bg-stone-800/60 px-2.5 py-1 rounded-md border border-stone-700/60 font-mono">
                 <span className="text-stone-500">Spend:</span>
-                <span className="text-emerald-400 font-medium">${ticket.costUsd.toFixed(4)}</span>
+                <span className="text-amber-400 font-medium">${ticket.costUsd.toFixed(4)}</span>
                 <span className="text-stone-500">({ticket.tokensUsed.toLocaleString()} tokens)</span>
               </div>
             )}
@@ -114,7 +114,7 @@ export function TicketDetailModal({ ticket, agent, goal, onClose, onApproveRevie
               onClick={() => setActiveTab("deliverables")}
               className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
                 activeTab === "deliverables"
-                  ? "border-emerald-500 text-emerald-400"
+                  ? "border-blue-500 text-blue-400"
                   : "border-transparent text-stone-400 hover:text-stone-200"
               }`}
             >
@@ -125,7 +125,7 @@ export function TicketDetailModal({ ticket, agent, goal, onClose, onApproveRevie
               onClick={() => setActiveTab("logs")}
               className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
                 activeTab === "logs"
-                  ? "border-emerald-500 text-emerald-400"
+                  ? "border-blue-500 text-blue-400"
                   : "border-transparent text-stone-400 hover:text-stone-200"
               }`}
             >
@@ -139,7 +139,7 @@ export function TicketDetailModal({ ticket, agent, goal, onClose, onApproveRevie
               onClick={handleCopy}
               className="flex items-center gap-1 text-[11px] text-stone-400 hover:text-stone-200 bg-stone-800 px-2.5 py-1 rounded-md transition-colors cursor-pointer"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-blue-400" /> : <Copy className="w-3.5 h-3.5" />}
               {copied ? "Copied Deliverable" : "Copy Content"}
             </button>
           )}
@@ -197,7 +197,7 @@ export function TicketDetailModal({ ticket, agent, goal, onClose, onApproveRevie
                           : log.phase === "checkout"
                           ? "bg-purple-950 text-purple-300"
                           : log.phase === "artifact"
-                          ? "bg-emerald-950 text-emerald-300"
+                          ? "bg-indigo-950 text-indigo-300"
                           : log.phase === "human_gate"
                           ? "bg-amber-950 text-amber-300"
                           : "bg-stone-800 text-stone-300"

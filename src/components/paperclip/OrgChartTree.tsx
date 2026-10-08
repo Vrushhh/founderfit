@@ -28,7 +28,7 @@ export function OrgChartTree({ agents, tickets, onSelectAgent, onDispatchTicketT
         <div>
           <div className="flex items-center justify-between pb-4 mb-6 border-b border-stone-800">
             <div className="flex items-center gap-2.5">
-              <Users className="w-5 h-5 text-emerald-400" />
+              <Users className="w-5 h-5 text-blue-400" />
               <h2 className="text-base font-semibold text-stone-100">
                 Agent Organization & Reporting Hierarchy
               </h2>
@@ -45,7 +45,7 @@ export function OrgChartTree({ agents, tickets, onSelectAgent, onDispatchTicketT
                 onClick={() => setSelectedAgentId(ceo.id)}
                 className={`w-full max-w-md p-4 rounded-xl border transition-all cursor-pointer relative shadow-lg ${
                   selectedAgentId === ceo.id
-                    ? "bg-stone-850 border-emerald-500 ring-1 ring-emerald-500/50"
+                    ? "bg-stone-850 border-blue-500 ring-1 ring-blue-500/50"
                     : "bg-stone-950/80 border-stone-800 hover:border-stone-700"
                 }`}
               >
@@ -57,7 +57,7 @@ export function OrgChartTree({ agents, tickets, onSelectAgent, onDispatchTicketT
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className="font-semibold text-sm text-stone-100">{ceo.name}</h3>
-                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded uppercase font-semibold bg-emerald-950 text-emerald-300 border border-emerald-800">
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded uppercase font-semibold bg-blue-950 text-blue-300 border border-blue-800">
                           {ceo.role.toUpperCase()}
                         </span>
                       </div>
@@ -70,7 +70,7 @@ export function OrgChartTree({ agents, tickets, onSelectAgent, onDispatchTicketT
                     <span
                       className={`text-[11px] font-medium px-2 py-0.5 rounded-full capitalize flex items-center gap-1 ${
                         ceo.status === "running" || ceo.status === "awake"
-                          ? "bg-emerald-950 text-emerald-300 border border-emerald-800 animate-pulse"
+                          ? "bg-blue-950 text-blue-300 border border-blue-800 animate-pulse"
                           : ceo.status === "review_gate"
                           ? "bg-amber-950 text-amber-300 border border-amber-800"
                           : "bg-stone-800 text-stone-400"
@@ -88,7 +88,7 @@ export function OrgChartTree({ agents, tickets, onSelectAgent, onDispatchTicketT
                 {/* Micro Budget Gauge */}
                 <div className="mt-3 pt-3 border-t border-stone-800/80 flex items-center justify-between text-[11px] text-stone-400 font-mono">
                   <span>Runtime: {ceo.modelRuntime}</span>
-                  <span className="text-emerald-400 font-medium">
+                  <span className="text-amber-400 font-medium">
                     ${ceo.spentBudgetUsd.toFixed(2)} / ${ceo.budgetLimitUsd}
                   </span>
                 </div>
@@ -114,7 +114,7 @@ export function OrgChartTree({ agents, tickets, onSelectAgent, onDispatchTicketT
                     onClick={() => setSelectedAgentId(agent.id)}
                     className={`p-3.5 rounded-xl border transition-all cursor-pointer relative ${
                       isSelected
-                        ? "bg-stone-850 border-emerald-500 ring-1 ring-emerald-500/50"
+                        ? "bg-stone-850 border-blue-500 ring-1 ring-blue-500/50"
                         : "bg-stone-950/60 border-stone-800/80 hover:border-stone-700"
                     }`}
                   >
@@ -140,7 +140,7 @@ export function OrgChartTree({ agents, tickets, onSelectAgent, onDispatchTicketT
                         <span
                           className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full capitalize flex items-center gap-1 ${
                             agent.status === "running" || agent.status === "awake"
-                              ? "bg-emerald-950 text-emerald-300 border border-emerald-800 animate-pulse"
+                              ? "bg-blue-950 text-blue-300 border border-blue-800 animate-pulse"
                               : agent.status === "review_gate"
                               ? "bg-amber-950 text-amber-300 border border-amber-800"
                               : "bg-stone-850 text-stone-400"
@@ -218,7 +218,7 @@ export function OrgChartTree({ agents, tickets, onSelectAgent, onDispatchTicketT
                 </div>
                 <div className="p-2.5 rounded-xl bg-stone-950 border border-stone-800">
                   <span className="text-stone-500 block text-[10px]">BUDGET SPENT</span>
-                  <span className="text-emerald-400 font-semibold mt-0.5 block">
+                  <span className="text-amber-400 font-semibold mt-0.5 block">
                     ${selectedAgent.spentBudgetUsd.toFixed(3)}
                   </span>
                 </div>
@@ -239,7 +239,7 @@ export function OrgChartTree({ agents, tickets, onSelectAgent, onDispatchTicketT
                       <span
                         className={`text-[9px] px-1.5 py-0.2 rounded font-semibold uppercase ${
                           t.status === "done"
-                            ? "bg-emerald-950 text-emerald-400"
+                            ? "bg-blue-950 text-blue-400"
                             : t.status === "review"
                             ? "bg-amber-950 text-amber-400"
                             : "bg-stone-800 text-stone-400"
@@ -258,7 +258,7 @@ export function OrgChartTree({ agents, tickets, onSelectAgent, onDispatchTicketT
             {onDispatchTicketToAgent && (
               <button
                 onClick={() => onDispatchTicketToAgent(selectedAgent.id)}
-                className="w-full py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+                className="w-full py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
               >
                 <Zap className="w-3.5 h-3.5" />
                 Assign New Ticket to {selectedAgent.name.split(" ")[0]}

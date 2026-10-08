@@ -57,7 +57,7 @@ export function NewTicketModal({ companyId, agents, goals, onClose, onCreateTick
       <div className="relative w-full max-w-2xl bg-stone-900 border border-stone-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-stone-100">
         <div className="px-6 py-4 border-b border-stone-800 flex items-center justify-between bg-stone-950/60">
           <div className="flex items-center gap-2">
-            <Plus className="w-5 h-5 text-emerald-400" />
+            <Plus className="w-5 h-5 text-blue-400" />
             <h2 className="text-base font-semibold text-stone-100">Dispatch New Task Ticket</h2>
           </div>
           <button
@@ -85,9 +85,9 @@ export function NewTicketModal({ companyId, agents, goals, onClose, onCreateTick
                     role: "cfo_analyst",
                   })
                 }
-                className="text-left p-2.5 rounded-lg bg-stone-800/60 border border-stone-700/60 hover:border-emerald-500/60 text-[11px] transition-colors cursor-pointer text-stone-300 hover:text-white"
+                className="text-left p-2.5 rounded-lg bg-stone-800/60 border border-stone-700/60 hover:border-blue-500/60 text-[11px] transition-colors cursor-pointer text-stone-300 hover:text-white"
               >
-                <span className="font-semibold block text-emerald-400">Profitability Leak</span>
+                <span className="font-semibold block text-amber-400">Profitability Leak</span>
                 Turn around dark store unit economics.
               </button>
               <button
@@ -99,7 +99,7 @@ export function NewTicketModal({ companyId, agents, goals, onClose, onCreateTick
                     role: "strategy_consultant",
                   })
                 }
-                className="text-left p-2.5 rounded-lg bg-stone-800/60 border border-stone-700/60 hover:border-emerald-500/60 text-[11px] transition-colors cursor-pointer text-stone-300 hover:text-white"
+                className="text-left p-2.5 rounded-lg bg-stone-800/60 border border-stone-700/60 hover:border-blue-500/60 text-[11px] transition-colors cursor-pointer text-stone-300 hover:text-white"
               >
                 <span className="font-semibold block text-blue-400">Market Entry</span>
                 Scale D2C brand into UAE & GCC.
@@ -113,7 +113,7 @@ export function NewTicketModal({ companyId, agents, goals, onClose, onCreateTick
                     role: "cfo_analyst",
                   })
                 }
-                className="text-left p-2.5 rounded-lg bg-stone-800/60 border border-stone-700/60 hover:border-emerald-500/60 text-[11px] transition-colors cursor-pointer text-stone-300 hover:text-white"
+                className="text-left p-2.5 rounded-lg bg-stone-800/60 border border-stone-700/60 hover:border-blue-500/60 text-[11px] transition-colors cursor-pointer text-stone-300 hover:text-white"
               >
                 <span className="font-semibold block text-purple-400">Pricing Overhaul</span>
                 Value-based B2B SaaS pricing.
@@ -131,7 +131,7 @@ export function NewTicketModal({ companyId, agents, goals, onClose, onCreateTick
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Conduct Competitor Benchmark & Value Chain Audit for Q3"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-sm focus:outline-none focus:border-emerald-500"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-sm focus:outline-none focus:border-blue-500"
             />
           </div>
 
@@ -144,7 +144,7 @@ export function NewTicketModal({ companyId, agents, goals, onClose, onCreateTick
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Provide background context, constraints, data points, or specific questions you want the agent to resolve..."
-              className="w-full px-3.5 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-sm focus:outline-none focus:border-emerald-500 leading-relaxed"
+              className="w-full px-3.5 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-sm focus:outline-none focus:border-blue-500 leading-relaxed"
             />
           </div>
 
@@ -154,7 +154,7 @@ export function NewTicketModal({ companyId, agents, goals, onClose, onCreateTick
               <select
                 value={assigneeId}
                 onChange={(e) => setAssigneeId(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs focus:outline-none focus:border-blue-500"
               >
                 {agents.map((agent) => (
                   <option key={agent.id} value={agent.id}>
@@ -169,7 +169,7 @@ export function NewTicketModal({ companyId, agents, goals, onClose, onCreateTick
               <select
                 value={goalId}
                 onChange={(e) => setGoalId(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs focus:outline-none focus:border-blue-500"
               >
                 {goals.map((goal) => (
                   <option key={goal.id} value={goal.id}>
@@ -186,7 +186,7 @@ export function NewTicketModal({ companyId, agents, goals, onClose, onCreateTick
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as TicketPriority)}
-                className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs focus:outline-none focus:border-blue-500"
               >
                 <option value="p0_critical">P0 — Critical (Urgent Attention)</option>
                 <option value="p1_high">P1 — High (Core Objective)</option>
@@ -201,7 +201,7 @@ export function NewTicketModal({ companyId, agents, goals, onClose, onCreateTick
                 id="humanReview"
                 checked={requiresHumanReview}
                 onChange={(e) => setRequiresHumanReview(e.target.checked)}
-                className="w-4 h-4 rounded text-emerald-600 bg-stone-950 border-stone-700 cursor-pointer"
+                className="w-4 h-4 rounded text-blue-600 bg-stone-950 border-stone-700 cursor-pointer"
               />
               <label htmlFor="humanReview" className="text-xs text-stone-300 cursor-pointer">
                 Require Human Gate (Sign-off before ticket closes)
@@ -219,7 +219,7 @@ export function NewTicketModal({ companyId, agents, goals, onClose, onCreateTick
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl text-xs font-medium bg-emerald-600 hover:bg-emerald-500 text-white transition-colors cursor-pointer shadow-md"
+              className="px-5 py-2 rounded-xl text-xs font-medium bg-blue-600 hover:bg-blue-500 text-white transition-colors cursor-pointer shadow-md"
             >
               Dispatch Ticket to Agent
             </button>
